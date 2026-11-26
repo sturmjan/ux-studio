@@ -18,9 +18,38 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Plus, Send, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 
+/** An image the staff chat tool created: always an attachment the server vouches for, never a URL from the model. */
+interface ChatImage {
+	id: number;
+	url: string;
+	alt: string;
+	edit_url: string;
+}
+
 interface ChatMessage {
 	role: 'user' | 'assistant';
 	content: string;
+	images?: ChatImage[];
+}
+
+function MessageImages( { images }: { images?: ChatImage[] } ): JSX.Element | null {
+	if ( ! images?.length ) {
+		return null;
+	}
+	return (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 } }>
+			{ images.map( ( image ) => (
+				<figure key={ image.id } style={ { margin: 0 } }>
+					<img src={ image.url } alt={ image.alt } style={ { maxWidth: '100%', maxHeight: 360, borderRadius: 8, display: 'block' } } />
+					<figcaption style={ { fontSize: 12, opacity: 0.8 } }>
+						<a href={ image.edit_url } target="_blank" rel="noreferrer">
+							{ __( 'Open in Media Library', 'ux-studio' ) }
+						</a>
+					</figcaption>
+				</figure>
+			) ) }
+		</div>
+	);
 }
 
 interface HistoryListItem {
@@ -298,11 +327,15 @@ export function InternalChatTab(): JSX.Element {
 			}
 
 			let assistantText = '';
+			let assistantImages: ChatImage[] = [];
 
 			await readStream( res, ( data ) => {
 				if ( 'string' === typeof data.error ) {
 					setError( data.error );
 					return;
+				}
+				if ( Array.isArray( data.images ) ) {
+					assistantImages = data.images as ChatImage[];
 				}
 				if ( 'string' === typeof data.content ) {
 					assistantText += data.content;
@@ -317,7 +350,12 @@ export function InternalChatTab(): JSX.Element {
 			} );
 
 			if ( assistantText ) {
-				setMessages( ( prev ) => [ ...prev, { role: 'assistant', content: assistantText } ] );
+				setMessages( ( prev ) => [
+					...prev,
+					assistantImages.length
+						? { role: 'assistant', content: assistantText, images: assistantImages }
+						: { role: 'assistant', content: assistantText },
+				] );
 			}
 			void queryClient.invalidateQueries( { queryKey: QK_HISTORY } );
 			void queryClient.invalidateQueries( { queryKey: QK_LIMITS } );
@@ -392,6 +430,7 @@ export function InternalChatTab(): JSX.Element {
 							} }
 						>
 							{ m.content }
+							<MessageImages images={ m.images } />
 						</div>
 					) ) }
 

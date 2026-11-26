@@ -130,6 +130,44 @@ final class VectorStore implements VectorStorePort {
 	}
 
 	/**
+	 * Distinct source ids that have vectors of a source type.
+	 *
+	 * @return array<int, int>
+	 */
+	public function source_ids( string $source_type ): array {
+		global $wpdb;
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT source_id FROM {$this->table} WHERE source_type = %s AND source_id IS NOT NULL ORDER BY source_id", $source_type ) );
+		return array_map( 'intval', (array) $ids );
+	}
+
+	/**
+	 * Chat targets a source has vectors for.
+	 *
+	 * @return array<int, string>
+	 */
+	public function targets_for_source( string $source_type, int $source_id ): array {
+		global $wpdb;
+		$targets = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT chat_target FROM {$this->table} WHERE source_type = %s AND source_id = %d", $source_type, $source_id ) );
+		return array_values( array_map( 'strval', (array) $targets ) );
+	}
+
+	/**
+	 * Highest vector id of a source (0 when none), used to replace a source's vectors without a gap.
+	 */
+	public function max_id_for_source( string $source_type, int $source_id ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(id) FROM {$this->table} WHERE source_type = %s AND source_id = %d", $source_type, $source_id ) );
+	}
+
+	/**
+	 * Delete a source's vectors with id up to (and including) $max_id; newer rows are kept.
+	 */
+	public function delete_source_up_to( string $source_type, int $source_id, int $max_id ): int {
+		global $wpdb;
+		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$this->table} WHERE source_type = %s AND source_id = %d AND id <= %d", $source_type, $source_id, $max_id ) );
+	}
+
+	/**
 	 * Core port: candidate vectors of one chat_target made by ONE embedding model, in batches (vectors of
 	 * different models are not comparable, so they are never returned together).
 	 *

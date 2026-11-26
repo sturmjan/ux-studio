@@ -38095,10 +38095,6 @@ msgstr "IndexNow už posílá %s. Tento web mlčí, aby se stránka neposlala dv
 msgid "Key address"
 msgstr "Adresa klíče"
 
-#: build/727.6d5bccb138f66ad931c8.js:2
-msgid "Indexing & Sharing"
-msgstr "Indexování a sdílení"
-
 #: build/index.e2f97ac80863bc5a165b.js:69
 msgid "You cancelled the connection. You can finish it later in the Content Sync module."
 msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synchronizace obsahu."
@@ -40686,3 +40682,257 @@ msgstr "Musí být na seznamu povolených složek v bridge."
 #: includes/Modules/AiAssistant/Module.php
 msgid "saved, no longer listed"
 msgstr "uloženo, už není v nabídce"
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:279
+msgid "The customer has cancelled the operator request, so there is nothing to take over. Refresh the list."
+msgstr "Zákazník zrušil žádost o operátora, není co převzít. Obnovte seznam."
+msgstr "Zákazník požadavek na operátora zrušil, není co převzít. Obnovte seznam."
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:282
+msgid "Another operator has already taken over this conversation."
+msgstr "Tuto konverzaci už převzal jiný operátor."
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:285
+msgid "This conversation has already been closed."
+msgstr "Tato konverzace je už uzavřená."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:120
+msgid "Invalid inquiry type."
+msgstr "Neplatný typ poptávky."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:129
+#: includes/Modules/AiAssistant/InquiryRestController.php:171
+#: includes/Modules/AiAssistant/InquiryRestController.php:190
+msgid "Invalid inquiry status."
+msgstr "Neplatný stav poptávky."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:179
+#: includes/Modules/AiAssistant/InquiryRestController.php:210
+msgid "Inquiry not found."
+msgstr "Poptávka nebyla nalezena."
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Handled"
+msgstr "Vyřízeno"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark handled (%d)"
+msgstr "Označit jako vyřízené (%d)"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark new (%d)"
+msgstr "Označit jako nové (%d)"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete the selected inquiries?"
+msgstr "Smazat vybrané poptávky?"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Select inquiry"
+msgstr "Vybrat poptávku"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark handled"
+msgstr "Označit jako vyřízené"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark new"
+msgstr "Označit jako nové"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete inquiry"
+msgstr "Smazat poptávku"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete this inquiry?"
+msgstr "Smazat tuto poptávku?"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "No inquiries yet."
+msgstr "Zatím žádné poptávky."
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Inquiries"
+msgstr "Poptávky"
+#: includes/Modules/AiAssistant/ImageService.php:116
+msgid "No API key is set for the image provider. Add it in the AI Assistant settings."
+msgstr "Pro poskytovatele obrázků není nastaven API klíč. Doplňte ho v nastavení AI asistenta."
+
+#: includes/Modules/AiAssistant/ImageService.php:215
+msgid "You are not allowed to upload files to the Media Library."
+msgstr "Nemáte oprávnění nahrávat soubory do Knihovny médií."
+
+#: includes/Modules/AiAssistant/ImageService.php:257
+msgid "The image provider returned an unsupported image."
+msgstr "Poskytovatel obrázků vrátil nepodporovaný obrázek."
+
+#: includes/Modules/AiAssistant/ImageService.php:266
+msgid "The image could not be saved to the uploads folder."
+msgstr "Obrázek se nepodařilo uložit do složky uploads."
+
+#: includes/Modules/AiAssistant/ImageService.php:280
+msgid "The image could not be added to the Media Library."
+msgstr "Obrázek se nepodařilo přidat do Knihovny médií."
+
+#: includes/Modules/AiAssistant/InternalChatEngine.php:219
+msgid "Here is the image."
+msgstr "Tady je obrázek."
+
+#: includes/Modules/AiAssistant/Module.php:519
+msgid "Image provider"
+msgstr "Poskytovatel obrázků"
+
+#: includes/Modules/AiAssistant/Module.php:520
+msgid "Used by the Image card in Content Creator and, when allowed, by the internal chat. Gemini has a free preview tier; OpenAI is always paid."
+msgstr "Používá se v kartě Obrázek v Tvorbě obsahu a, je-li to povoleno, ve vnitřním chatu. Gemini má bezplatnou úroveň náhledu, OpenAI je vždy placené."
+
+#: includes/Modules/AiAssistant/Module.php:530
+msgid "Gemini image API key"
+msgstr "API klíč Gemini pro obrázky"
+
+#: includes/Modules/AiAssistant/Module.php:531
+msgid "Google AI Studio key for image generation. Stored encrypted. Leave blank to keep the current key."
+msgstr "Klíč z Google AI Studia pro generování obrázků. Ukládá se zašifrovaně. Nechte prázdné, pokud chcete ponechat stávající klíč."
+
+#: includes/Modules/AiAssistant/Module.php:537
+msgid "OpenAI image API key"
+msgstr "API klíč OpenAI pro obrázky"
+
+#: includes/Modules/AiAssistant/Module.php:538
+msgid "OpenAI key for image generation (separate from the chat key above). Stored encrypted. Leave blank to keep the current key."
+msgstr "Klíč OpenAI pro generování obrázků (oddělený od klíče pro chat výše). Ukládá se zašifrovaně. Nechte prázdné, pokud chcete ponechat stávající klíč."
+
+#: includes/Modules/AiAssistant/Module.php:544
+msgid "OpenAI image model"
+msgstr "Model OpenAI pro obrázky"
+
+#: includes/Modules/AiAssistant/Module.php:545
+msgid "Only used when the image provider is OpenAI. The cheapest model is GPT Image 1 Mini."
+msgstr "Používá se jen tehdy, když je poskytovatelem obrázků OpenAI. Nejlevnější je GPT Image 1 Mini."
+
+#: includes/Modules/AiAssistant/Module.php:791
+msgid "Allow images in chat"
+msgstr "Povolit obrázky v chatu"
+
+#: includes/Modules/AiAssistant/Module.php:792
+msgid "The internal chat may generate an image when the user asks for one. Every image costs money (up to about 0.13 USD each) and counts toward the daily request limit. Needs an image API key above and a chat provider with tool support; with the Claude Code Bridge this setting has no effect. Off by default. Never applies to the public visitor widget."
+msgstr "Vnitřní chat může vytvořit obrázek, když o něj uživatel požádá. Každý obrázek stojí peníze (až zhruba 0,13 USD za kus) a počítá se do denního limitu požadavků. Vyžaduje API klíč pro obrázky výše a poskytovatele chatu s podporou nástrojů; u Claude Code Bridge toto nastavení nemá žádný účinek. Ve výchozím stavu vypnuto. Nikdy se netýká veřejného widgetu pro návštěvníky."
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "No style"
+msgstr "Bez stylu"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Photo"
+msgstr "Fotografie"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Illustration"
+msgstr "Ilustrace"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "3D render"
+msgstr "3D render"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Watercolor"
+msgstr "Akvarel"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Anime"
+msgstr "Anime"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Sketch"
+msgstr "Skica"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Preview, free (Gemini 2.5 Flash)"
+msgstr "Náhled zdarma (Gemini 2.5 Flash)"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Final quality, paid"
+msgstr "Finální kvalita, placená"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Free"
+msgstr "Zdarma"
+
+#: build/313.1b54dd92044334346439.js:1
+msgid "Generate an image"
+msgstr "Vytvořit obrázek"
+
+#. translators: %s: image provider name
+#: build/313.1b54dd92044334346439.js:2
+msgid "Image generation is off: no API key is set for %s. Add it in the AI Assistant settings (Settings tab, Image provider)."
+msgstr "Generování obrázků je vypnuté: pro %s není nastaven API klíč. Doplňte ho v nastavení AI asistenta (karta Nastavení, Poskytovatel obrázků)."
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Describe the image"
+msgstr "Popište obrázek"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Describe the subject, setting and mood. Avoid text and real people in the image."
+msgstr "Popište motiv, prostředí a náladu. V obrázku se vyhněte textu a skutečným osobám."
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Style"
+msgstr "Styl"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Aspect ratio"
+msgstr "Poměr stran"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Quality tier"
+msgstr "Úroveň kvality"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Resolution"
+msgstr "Rozlišení"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "Low (cheapest)"
+msgstr "Nízká (nejlevnější)"
+
+#: build/313.1b54dd92044334346439.js:2
+msgid "High (most expensive)"
+msgstr "Vysoká (nejdražší)"
+
+#. translators: %s: estimated price in USD, or "Free"
+#: build/313.1b54dd92044334346439.js:3
+msgid "Estimated cost: %s"
+msgstr "Odhadovaná cena: %s"
+
+#. translators: %s: price in USD
+#: build/313.1b54dd92044334346439.js:4
+msgid "Cost: %s"
+msgstr "Cena: %s"
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "Generate image"
+msgstr "Vytvořit obrázek"
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "Generating, this can take up to a minute."
+msgstr "Generuji, může to trvat až minutu."
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "Open in Media Library"
+msgstr "Otevřít v Knihovně médií"
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "A Gemini image API key is currently set."
+msgstr "API klíč Gemini pro obrázky je nastaven."
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "No Gemini image API key set yet."
+msgstr "API klíč Gemini pro obrázky zatím není nastaven."
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "An OpenAI image API key is currently set."
+msgstr "API klíč OpenAI pro obrázky je nastaven."
+
+#: build/313.1b54dd92044334346439.js:4
+msgid "No OpenAI image API key set yet."
+msgstr "API klíč OpenAI pro obrázky zatím není nastaven."

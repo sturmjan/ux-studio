@@ -8,8 +8,10 @@
  * everything the other side added meanwhile, so both go through here:
  *  - append_messages() re-reads the row and appends with a compare-and-swap
  *    UPDATE (retried), so concurrent appends are merged, never overwritten;
- *  - ensure_row() makes sure one session has exactly one row (there is no
- *    UNIQUE key on session_id, so concurrent inserts are de-duplicated).
+ *  - ensure_row() makes sure one session has exactly one row. Since module DB
+ *    version 2 session_id has a UNIQUE key (the database rejects the second
+ *    insert); sites that have not run that upgrade yet fall back to
+ *    de-duplicating in code.
  *
  * @package UxStudio
  */
@@ -41,7 +43,9 @@ final class ConversationStore {
 	/**
 	 * Returns the id of the single row of a session, inserting $insert_data
 	 * when none exists. If two requests insert at the same time (e.g. the chat
-	 * finishing while the visitor pressed "call an operator"), the row with the
+	 * finishing while the visitor pressed "call an operator"): with the UNIQUE
+	 * key the second insert simply fails and the existing row is returned;
+	 * without it (index not created yet) both rows exist, the row with the
 	 * lowest id wins and the other one is removed - it is still empty, because
 	 * message content is only ever written through append_messages().
 	 *
@@ -55,12 +59,17 @@ final class ConversationStore {
 			return $id;
 		}
 
-		$wpdb->insert( self::table(), $insert_data );
-		$mine = (int) $wpdb->insert_id;
+		// A duplicate-key failure is expected here (the other request won): keep it out of the error log.
+		$previous = $wpdb->suppress_errors( true );
+		$inserted = $wpdb->insert( self::table(), $insert_data );
+		$wpdb->suppress_errors( $previous );
+		$mine = $inserted ? (int) $wpdb->insert_id : 0;
 
 		$winner = self::find_id( $session_id );
 		if ( $winner > 0 && $winner !== $mine ) {
-			$wpdb->delete( self::table(), array( 'id' => $mine ) );
+			if ( $mine > 0 ) {
+				$wpdb->delete( self::table(), array( 'id' => $mine ) );
+			}
 			return $winner;
 		}
 

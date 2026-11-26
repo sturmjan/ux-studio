@@ -22,5 +22,6 @@ final class ContentBootstrap {
 
 	public static function register_rest_routes(): void {
 		( new ContentRestController() )->register_routes();
+		( new ImageRestController() )->register_routes();
 	}
 }

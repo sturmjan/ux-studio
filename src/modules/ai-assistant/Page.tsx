@@ -10,6 +10,7 @@ import { ChatTab } from './ChatTab';
 import { KnowledgeHubTab } from './KnowledgeHubTab';
 import { RagTrainingTab } from './RagTrainingTab';
 import { HandoffTab } from './HandoffTab';
+import { InquiriesTab, useNewInquiryCount } from './InquiriesTab';
 import { ContentCreatorTab } from './ContentCreatorTab';
 import { BlogPilotTab } from './BlogPilotTab';
 import { InternalChatTab } from './InternalChatTab';
@@ -28,6 +29,7 @@ type TabId =
 	| 'knowledge'
 	| 'rag'
 	| 'handoff'
+	| 'inquiries'
 	| 'content'
 	| 'blog-pilot'
 	| 'internal-chat'
@@ -39,6 +41,7 @@ const TABS: { id: TabId; label: string }[] = [
 	{ id: 'usage', label: __( 'Usage', 'ux-studio' ) },
 	{ id: 'conversations', label: __( 'Conversations', 'ux-studio' ) },
 	{ id: 'handoff', label: __( 'Handoff', 'ux-studio' ) },
+	{ id: 'inquiries', label: __( 'Inquiries', 'ux-studio' ) },
 	{ id: 'knowledge', label: __( 'Knowledge Hub', 'ux-studio' ) },
 	{ id: 'rag', label: __( 'RAG Training', 'ux-studio' ) },
 	{ id: 'content', label: __( 'Content Creator', 'ux-studio' ) },
@@ -95,7 +98,8 @@ const isUsageKey = ( key: string ): boolean =>
 const isHandoffKey = ( key: string ): boolean =>
 	[ 'operator_notifications_enabled', 'operator_notification_email', 'contact_email', 'notification_email_hourly_limit' ].includes( key );
 const isMcpKey = ( key: string ): boolean => 'mcp_enabled' === key;
-const isInternalChatTopicKey = ( key: string ): boolean => isInternalChatKey( key ) || 'chat_history_retention_days' === key;
+const isInternalChatTopicKey = ( key: string ): boolean =>
+	isInternalChatKey( key ) || 'chat_history_retention_days' === key || 'chat_images_enabled' === key;
 const isGeneralKey = ( key: string ): boolean =>
 	! isWidgetKey( key ) &&
 	! isInternalChatTopicKey( key ) &&
@@ -138,6 +142,14 @@ export function SettingsTab( {
 				{ draft.has_deepseek_api_key
 					? __( 'A DeepSeek API key is currently set.', 'ux-studio' )
 					: __( 'No DeepSeek API key set yet.', 'ux-studio' ) }
+				{ ' · ' }
+				{ draft.has_image_gemini_api_key
+					? __( 'A Gemini image API key is currently set.', 'ux-studio' )
+					: __( 'No Gemini image API key set yet.', 'ux-studio' ) }
+				{ ' · ' }
+				{ draft.has_image_openai_api_key
+					? __( 'An OpenAI image API key is currently set.', 'ux-studio' )
+					: __( 'No OpenAI image API key set yet.', 'ux-studio' ) }
 			</p>
 			) }
 			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
@@ -269,6 +281,7 @@ function initialTab(): TabId {
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< TabId >( initialTab );
+	const newInquiries = useNewInquiryCount();
 
 	return (
 		<>
@@ -289,6 +302,7 @@ export default function Page(): JSX.Element {
 				{ TABS.map( ( t ) => (
 					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
 						{ t.label }
+						{ 'inquiries' === t.id && newInquiries > 0 && <span className="uxs-badge is-danger">{ newInquiries }</span> }
 					</button>
 				) ) }
 			</TabsNav>
@@ -301,6 +315,7 @@ export default function Page(): JSX.Element {
 				</>
 			) }
 			{ tab === 'conversations' && <ChatTab /> }
+			{ tab === 'inquiries' && <InquiriesTab /> }
 			{ tab === 'handoff' && (
 				<>
 					<SettingsPanel title={ __( 'Notifications and contact e-mail', 'ux-studio' ) } filter={ isHandoffKey } />
