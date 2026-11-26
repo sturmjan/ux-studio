@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.22.0 - 2026-11-26
 
 - Changed: AI Assistant, Blog Pilot - articles are now written by the shared AI core (ux1-ai-core 0.4.0, content pipeline) instead of the plugin's own prompt: all 33 article types, a clean HTML body (no Markdown conversion), SEO structure rules, the date of today in the prompt, links to the site's own latest posts, and an automatic second attempt when the article comes out shorter than the chosen length. Existing generators, schedules and settings keep working unchanged; token usage is logged once per article (all attempts summed).
 - Added: Blog Pilot - "Suggest topics" in the generator form: the AI proposes topics from a brief (by default built from the site name and tagline), never repeating the titles that already exist on the site or in the generator. Tick, edit or replace single proposals, then add them to the generator's topics (the angle, keyword and article type are remembered for the article) or write the posts straight away.
