@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fixed: AI Assistant chat widget - product cards under an answer were empty (no name, price or image, link "#") and the FAQ chips under the greeting never appeared. The widget did not unwrap the { data, meta } envelope of the REST API.
+- Changed: AI Assistant chat widget - product card prices are grouped by the page language ("11 890 Kč" instead of "11890.00 Kč").
+
 ## 0.20.1 - 2026-11-25
 
 - Fixed: the text of a consent field (Form Builder, "Acceptance" and "Checkbox") accepts a link, so you can write e.g. `I agree with the <a href="/gdpr">GDPR policy</a>`. Until now the tags were stripped when saving. Only links (http, https, mailto) and basic emphasis (strong, em, br) are kept; any other HTML is removed.
