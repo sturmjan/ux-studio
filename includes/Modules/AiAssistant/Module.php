@@ -47,7 +47,7 @@ final class Module extends BaseModule {
 	);
 
 	/** Module schema version, see migrate(). */
-	private const DB_VERSION = 2;
+	private const DB_VERSION = 3;
 
 	/** Daily purge of the usage/error log and internal chat history (see Core\Retention). */
 	private const RETENTION_HOOK = 'uxstudio_ai_assistant_retention';
@@ -121,7 +121,9 @@ final class Module extends BaseModule {
 	 * so it only ever runs for sites where this module is enabled.
 	 *
 	 * Schema versions: 1 = initial schema; 2 = conversations.session_id is UNIQUE (duplicate rows merged first,
-	 * see ConversationDedupe).
+	 * see ConversationDedupe); 3 = blog_generated_posts.keyword and .summary (focus keyword and angle of the topic, used
+	 * to write the article again). Old rows get the empty defaults; generators need no migration (new options live in
+	 * their JSON config and are optional).
 	 *
 	 * @param int $from Previously installed module schema version (0 = fresh install).
 	 */
@@ -420,6 +422,8 @@ final class Module extends BaseModule {
 				provider varchar(50) DEFAULT '',
 				model varchar(100) DEFAULT '',
 				tokens_used int UNSIGNED NOT NULL DEFAULT 0,
+				keyword varchar(255) NOT NULL DEFAULT '',
+				summary text,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  (id),
 				KEY generator_id (generator_id),

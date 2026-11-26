@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.22.0 - 2026-11-26
+
+- Changed: AI Assistant, Blog Pilot - articles are now written by the shared AI core (ux1-ai-core 0.4.0, content pipeline) instead of the plugin's own prompt: all 33 article types, a clean HTML body (no Markdown conversion), SEO structure rules, the date of today in the prompt, links to the site's own latest posts, and an automatic second attempt when the article comes out shorter than the chosen length. Existing generators, schedules and settings keep working unchanged; token usage is logged once per article (all attempts summed).
+- Added: Blog Pilot - "Suggest topics" in the generator form: the AI proposes topics from a brief (by default built from the site name and tagline), never repeating the titles that already exist on the site or in the generator. Tick, edit or replace single proposals, then add them to the generator's topics (the angle, keyword and article type are remembered for the article) or write the posts straight away.
+- Added: Blog Pilot - calendar scheduling: a new post status "Scheduled (publish plan)" creates the posts as WordPress scheduled posts. The publish plan sets a number of posts per day or week, or spreads them over a date range, inside a time window on chosen weekdays, in the site time zone; days and minutes already taken by scheduled posts are avoided.
+- Added: Blog Pilot - "Calendar" view: a month grid with the generated and every scheduled post; click a post to open it in the editor, change the date and time of a scheduled post right in the grid (REST `POST .../blog-pilot/posts/{id}/schedule`).
+- Added: Blog Pilot - "Approval" view: generated drafts and pending posts with a sandboxed preview and the decision per post - approve (publish now, at a chosen time or in the next planned slot), edit in WordPress, write the article again, reject (trash) - plus bulk approval that plans the dates automatically.
+- Changed: Blog Pilot - the generated-post routes now need only edit_posts and check the capability for each post (edit_post, publish_post, delete_post); generator and topic routes still need manage_options. The AI routes (suggest, replace a topic, write again, run) share a budget of 20 calls per 10 minutes per user. Bulk actions touch only posts Blog Pilot wrote.
+- Fixed: Blog Pilot - saving a generator no longer drops its author, category and extra instructions: the config is merged into the stored one. Generator input (topics, article types, schedule, config) is now cleaned and validated on the server.
+- Changed: database upgrade 3 for the AI Assistant: the generated-post log gets `keyword` and `summary` columns (empty for old rows).
+
 ## 0.21.1 - 2026-11-26
 
 - Fixed: AI Assistant inquiries inbox - the table no longer overflows the content area: date and type share a column, name, e-mail and phone are grouped as Contact, the page shows its path (full URL on hover) and the row actions are icons. "Contact" is translated to Czech.

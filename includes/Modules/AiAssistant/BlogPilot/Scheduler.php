@@ -15,6 +15,7 @@
 
 namespace UxStudio\Modules\AiAssistant\BlogPilot;
 
+use Ux1\AiCore\Content\ArticleTypes as CoreArticleTypes;
 use UxStudio\Modules\AiAssistant\ErrorLogger;
 use UxStudio\Modules\AiAssistant\UsageLimiter;
 
@@ -114,22 +115,7 @@ final class Scheduler {
 			}
 
 			try {
-				$topic        = $this->select_topic( $generator );
-				$article_type = $this->select_article_type( $generator );
-
-				$result = $post_creator->generate( $generator, $topic, $article_type );
-
-				$manager->log_generated_post(
-					(int) $generator->id,
-					$result['post_id'],
-					array(
-						'topic'        => $topic,
-						'article_type' => $article_type,
-						'provider'     => $generator->provider,
-						'model'        => $generator->model,
-						'tokens_used'  => ( $result['usage']['input_tokens'] ?? 0 ) + ( $result['usage']['output_tokens'] ?? 0 ),
-					)
-				);
+				$this->generate_one( $manager, $generator, $post_creator );
 			} catch ( \Throwable $e ) {
 				$this->log_failure( $generator_id, $e );
 				$manager->log_error( $generator_id, $e->getMessage() );
@@ -141,9 +127,10 @@ final class Scheduler {
 	/**
 	 * Runs a generator immediately (outside of cron), e.g. from the "Run now" REST action.
 	 *
-	 * @return array{success:bool,post_id?:int,title?:string,edit_url?:string,error?:string}
+	 * @param array{topic?:string,article_type?:string,keyword?:string,summary?:string}|null $override Write this topic instead of a random one.
+	 * @return array{success:bool,post_id?:int,title?:string,edit_url?:string,status?:string,scheduled_for?:?string,warnings?:array<int,string>,error?:string}
 	 */
-	public function run_manual( int $generator_id ): array {
+	public function run_manual( int $generator_id, ?array $override = null ): array {
 		$manager   = new GeneratorManager();
 		$generator = $manager->get( $generator_id );
 
@@ -165,27 +152,16 @@ final class Scheduler {
 		$post_creator = new PostCreator();
 
 		try {
-			$topic        = $this->select_topic( $generator );
-			$article_type = $this->select_article_type( $generator );
-			$result       = $post_creator->generate( $generator, $topic, $article_type );
-
-			$manager->log_generated_post(
-				(int) $generator->id,
-				$result['post_id'],
-				array(
-					'topic'        => $topic,
-					'article_type' => $article_type,
-					'provider'     => $generator->provider,
-					'model'        => $generator->model,
-					'tokens_used'  => ( $result['usage']['input_tokens'] ?? 0 ) + ( $result['usage']['output_tokens'] ?? 0 ),
-				)
-			);
+			$result = $this->generate_one( $manager, $generator, $post_creator, $override );
 
 			return array(
-				'success'  => true,
-				'post_id'  => $result['post_id'],
-				'title'    => $result['title'],
-				'edit_url' => get_edit_post_link( $result['post_id'], 'raw' ),
+				'success'       => true,
+				'post_id'       => $result['post_id'],
+				'title'         => $result['title'],
+				'edit_url'      => get_edit_post_link( $result['post_id'], 'raw' ),
+				'status'        => $result['status'],
+				'scheduled_for' => $result['scheduled_for'],
+				'warnings'      => $result['warnings'],
 			);
 		} catch ( \Throwable $e ) {
 			$this->log_failure( $generator_id, $e );
@@ -218,6 +194,48 @@ final class Scheduler {
 		);
 	}
 
+	/**
+	 * Generates and logs one post. A topic with stored extras (angle, focus keyword, article type chosen in the topic
+	 * suggestions) uses them; `$override` replaces the random topic choice.
+	 *
+	 * @param array{topic?:string,article_type?:string,keyword?:string,summary?:string}|null $override
+	 * @return array<string, mixed> Result of PostCreator::generate().
+	 */
+	private function generate_one( GeneratorManager $manager, object $generator, PostCreator $post_creator, ?array $override = null ): array {
+		$topic = '' !== trim( (string) ( $override['topic'] ?? '' ) ) ? trim( (string) $override['topic'] ) : $this->select_topic( $generator );
+		$known = (array) ( ( (array) $generator->config )['topic_meta'][ $topic ] ?? array() );
+		$meta  = array(
+			'keyword' => (string) ( $override['keyword'] ?? $known['keyword'] ?? '' ),
+			'summary' => (string) ( $override['summary'] ?? $known['summary'] ?? '' ),
+		);
+
+		$article_type = (string) ( $override['article_type'] ?? '' );
+		if ( '' === $article_type ) {
+			$article_type = (string) ( $known['article_type'] ?? '' );
+		}
+		if ( '' === $article_type ) {
+			$article_type = $this->select_article_type( $generator );
+		}
+
+		$result = $post_creator->generate( $generator, $topic, $article_type, $meta );
+
+		$manager->log_generated_post(
+			(int) $generator->id,
+			$result['post_id'],
+			array(
+				'topic'        => $topic,
+				'article_type' => $article_type,
+				'provider'     => $generator->provider,
+				'model'        => $generator->model,
+				'tokens_used'  => ( $result['usage']['input_tokens'] ?? 0 ) + ( $result['usage']['output_tokens'] ?? 0 ),
+				'keyword'      => $result['keyword'],
+				'summary'      => $meta['summary'],
+			)
+		);
+
+		return $result;
+	}
+
 	private function select_topic( object $generator ): string {
 		$topics = $generator->topics;
 		if ( empty( $topics ) ) {
@@ -230,7 +248,7 @@ final class Scheduler {
 	private function select_article_type( object $generator ): string {
 		$types = $generator->article_types;
 		if ( empty( $types ) ) {
-			$all_types = array_keys( ArticleTypes::TYPES );
+			$all_types = CoreArticleTypes::ids( CoreArticleTypes::KIND_ARTICLE );
 			return $all_types[ array_rand( $all_types ) ];
 		}
 

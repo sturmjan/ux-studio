@@ -1,10 +1,22 @@
 {
-    "version": "0.3.0",
-    "commit": "da0adb383ebed56699896bb858ab4dda763e05da",
+    "version": "0.4.0",
+    "commit": "a1cfa60f834d9fdb43736f4b53471cb7c51b7446",
     "files": {
-        "README.md": "8ef473bf7ca8f944ca6235bab53462e402bee0098e239b2e4a2f59e48fe341af",
-        "VERSION": "742f74605ec285d0b02ecba5fcc7ac52bf5b423a4b456456f9f7b9ca73ed193c",
+        "README.md": "6737b3c359f0a203aa56eee647d2b6d4ab6d2573d42400ae9af1803fa993eb07",
+        "VERSION": "a81e7c3c7d7941206945cbc90dd9ac6b20d717ef9f3b0019cb45fdf827af5705",
         "autoload.php": "914ebeb41eb0f3ed0b5b0d3f4c00899b1fb4b450e2ca7336aadb038ebf3ddca7",
+        "src/Content/ArticleDraft.php": "7a6717a4d4e4d852ba2e7bbd27ce0e60d4875a5cdf32150391b1ac6ec2ac6ac6",
+        "src/Content/ArticleHtml.php": "4289d91a07ce4b3c749b3d45d39958dcd48b61f0030e59c014db18ee042a5cf7",
+        "src/Content/ArticleRequest.php": "50b5ed37f460e33c7f0516e19b15a3ece0fede204c5bd169e89a6a87176bf66e",
+        "src/Content/ArticleTypes.php": "2296e423881466d5db2b802ec36fd1c714540e03ec3a3b06ed65df610b120c46",
+        "src/Content/ArticleWriter.php": "10a0c1efa7986cda1de083f37b9713188a89eef0391a2414b66cc6b4ada456cb",
+        "src/Content/CalendarMonth.php": "b748b0acd88289687b2430647e88c6851f30680fa1854a7c2806d97908968c5f",
+        "src/Content/ContentText.php": "22dd62b6f2d4b5b7e55d13465a7b54a26740c01f5aef193fbca9562e15af2fb8",
+        "src/Content/PublishPlanRequest.php": "b7a500eb1704ee975f614283a75703818d44fa944db856f68e370a6bc3a6bb8c",
+        "src/Content/PublishPlanner.php": "124c1db5e3d16825c97acca301e6351d80be5bc887728b97a54c2720afccc7fd",
+        "src/Content/TopicPlanner.php": "25b7dfd15265540659e01428c49911384c9081aee240b2a3b714e32407b7f1b1",
+        "src/Content/TopicProposal.php": "2f19e234bea27430063be755fac94ad0fdc5d15a8dcc0b5da8043a6fe508b591",
+        "src/Content/TopicRequest.php": "86b6403e206973459c4a3c2e50c042943d6649b4b43c2083157f8102cdae7738",
         "src/Http/CurlHttpClient.php": "6505f6b4d9817d10dc3dc196b888fe135a2d5e55a1a04bd0e53adbbcc3b231d3",
         "src/Http/HttpClient.php": "39edd2c82fed56fb10368b168586eb51520f0d18af895b9397e860199e3e15ce",
         "src/Http/HttpException.php": "52b5af777fd39b1a81c5409ac868a4c2f77301b0c71f1be8c4c737ebc00b30a6",
@@ -38,6 +50,6 @@
         "src/Rag/VectorSearch.php": "43827febbe2ec72713e4ec620892041c04373e5ff4a34c943de48c9693051ab2",
         "src/Rag/VectorStore.php": "aefd4b1026e84a6cd62b505ffdf67bf6a7acaa9d4b3bc4be88d11d802d2b9712",
         "src/Support/Json.php": "659a71b812d03beed3cd42a0d0d3a8f71ba7c4aa74d8fed285ae9df44483080b",
-        "src/Version.php": "108129dab083208ac187bfcda9265602d83f14f3c84632e87bf0adfcc21b5ff3"
+        "src/Version.php": "c0375ae29360fdb32574aa98b3de7c085ec2d94d8b6100f43fabc9ca30548bfd"
     }
 }
