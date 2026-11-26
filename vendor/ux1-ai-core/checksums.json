@@ -1,9 +1,9 @@
 {
     "version": "0.1.0",
-    "commit": "88fb80528e94a8d8c3a3070d865ce8c4953ad0a7",
+    "commit": "8cad01e698ff0f41b8e4fb9581585e51b5bd100d",
     "files": {
         "README.md": "c29f29952f20a86d3e192213183517475512ac2aee4e1d9703f54d799b26ecb5",
-        "VERSION": "5c32251bf8aa51a418e3774fdfaecaa0e1207bec61fbfd9afdc96c91c32f1c40",
+        "VERSION": "f0a7a73f70525f847f4dab0ffe2602b28531694d8548453d2d8fb1e02687e2f7",
         "autoload.php": "914ebeb41eb0f3ed0b5b0d3f4c00899b1fb4b450e2ca7336aadb038ebf3ddca7",
         "src/Http/CurlHttpClient.php": "6505f6b4d9817d10dc3dc196b888fe135a2d5e55a1a04bd0e53adbbcc3b231d3",
         "src/Http/HttpClient.php": "39edd2c82fed56fb10368b168586eb51520f0d18af895b9397e860199e3e15ce",
@@ -17,6 +17,13 @@
         "src/Provider/OpenAiProvider.php": "5bb047129d87af1171a30f0c535a5b5cd623fd8324a09cb2e5ed28b341b154a0",
         "src/Provider/TextProvider.php": "2ae72e9217304a6818753d8bfe85d9c3418d3efef6900f74e762597c99a206ca",
         "src/Provider/UsageEstimator.php": "0b1de2ee149e6e0925f15bbe5cda7f2f2b0b12f172bbbe78e9edd9f70ff26fc6",
+        "src/Rag/ChunkingEngine.php": "6de7446333bb2a20d4f9cd16a1cde0f0251615a6ce638630627ea13bdc9010b9",
+        "src/Rag/EmbeddingProvider.php": "222e92b83f946b1b0f7ac1072f501fb4bc0c951dcaef905199c1dfe6556b9ec1",
+        "src/Rag/FallbackEmbedding.php": "bee2a6a8f07351a2138f1ac29cea9cdaa28419a7652c9e36cc34a6c107579e06",
+        "src/Rag/OpenAiEmbedding.php": "5f9df814b50baa3635f0e9105828cd428dc32871e4e551d71c1d9077625a165c",
+        "src/Rag/TextCleaner.php": "2486adbe4c869e77b56177ecb6bf04871ba91005840c5159417ab8ad9003bb78",
+        "src/Rag/VectorSearch.php": "5cfb41e1bf3f5222a4c186d960e74b6f60c0b055e3fd0974fda91fd2331f83d3",
+        "src/Rag/VectorStore.php": "aefd4b1026e84a6cd62b505ffdf67bf6a7acaa9d4b3bc4be88d11d802d2b9712",
         "src/Support/Json.php": "659a71b812d03beed3cd42a0d0d3a8f71ba7c4aa74d8fed285ae9df44483080b",
         "src/Version.php": "9f806677944a3b04c64a4407a53173f5d39e3d677b83561e4a549162a212d97a"
     }
