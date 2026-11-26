@@ -4823,9 +4823,13 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 
 **F1 Čistá část jádra**
 - [x] Repo `sturmjan/ux1-ai-core` (privátní, lokálně `D:\xampp\htdocs\.komponenty\ux1-ai-core`): autoloader bez Composeru, vlastní testovací runner, strážce čistoty `tests/purity.php` (shodí build při volání WordPressu nebo CA), CI na PHP 8.1-8.4 zelené; 2026-11-26.
-- [ ] Přesunout providery (se streamem, embedem a odhadem tokenů) za rozhraní `HttpClient`.
+- [x] Přesunout textové providery (Claude, OpenAI, DeepSeek, Claude Code Bridge) se streamem a odhadem tokenů za rozhraní `HttpClient` (jádro 0.1.0, 2026-11-26). OpenAI a DeepSeek jsou jedna třída `OpenAiCompatibleProvider` s konfigurací. Opraveno při přesunu: chyba HTTP u streamu OpenAI/DeepSeek už nekončí tichou prázdnou odpovědí.
+- [x] Plugin přepnutý na providery z jádra: `vendor/ux1-ai-core` přes `bin/sync-core.php` (kontrolní součty nezávislé na koncích řádků, `--check` v release workflow), `CoreProvider` adaptér, `WpHttpClient` (běžné požadavky přes WP HTTP API, stream přes cURL s CA bundle WP). Testy: jádro 21/21, `tests/ai-core-providers.php` 11/11, charakterizační testy, e2e smoke 9/9 na lokálních pobytech.
+- [ ] Embeddingy do jádra (metoda `embed` u providerů, OpenAI embeddingy).
 - [ ] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker).
-- [ ] Plugin přepnout na jádro, chování beze změny, testy zelené.
+- [ ] Obrázkové providery z CA (Gemini, OpenAI gpt-image) do jádra.
+- [ ] Automat aktualizačních PR (GitHub Action v ux1-ai-core po tagu otevře PR v pluginu a v CA).
+- [ ] CA: vendorovat jádro do `lib/ux1-ai-core` a přepnout `core/providers` na providery z jádra.
 
 **F2 Úložiště a tenant**
 - [ ] Rozhraní repozitářů a jeden schéma-soubor s `bot_id`.

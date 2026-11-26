@@ -31,6 +31,10 @@ define( 'UXSTUDIO_URL', plugin_dir_url( __FILE__ ) );
 require_once UXSTUDIO_PATH . 'includes/Autoloader.php';
 \UxStudio\Autoloader::register();
 
+// Shared AI core (sturmjan/ux1-ai-core, namespace Ux1\AiCore), vendored by bin/sync-core.php - never edit the copy.
+// Development only: define UX1_AI_CORE_PATH in wp-config.php to run a local core checkout instead.
+require_once ( defined( 'UX1_AI_CORE_PATH' ) ? rtrim( (string) UX1_AI_CORE_PATH, '/\\' ) : UXSTUDIO_PATH . 'vendor/ux1-ai-core' ) . '/autoload.php';
+
 // Activation: hand over from the legacy ux1 plugin (install DB + migrate data +
 // deactivate ux1 + offer to delete it). Registered BEFORE the conflict guard so
 // it always runs on activation, even while ux1 is still active.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Changed: AI Assistant - the AI providers (Claude, OpenAI, DeepSeek, Claude Code Bridge) now come from the shared AI core ux1-ai-core (vendor/ux1-ai-core), which UX1 Network app uses too. Settings, models and saved keys are unchanged.
+- Fixed: AI Assistant - when OpenAI or DeepSeek refused a streamed chat answer (wrong key, quota, unknown model), the visitor got an empty answer and nothing was logged; the error is now logged and the chat falls back to another provider with a key.
+
+## Unreleased
+
 - Added: AI Assistant - "Claude Code Bridge (local PC)" provider for development and internal use: talks to a local Claude Code Bridge daemon (token stored encrypted, URL and working directory in Settings). Answers are not streamed and tool calling is not offered; token usage is estimated so limits and statistics count these calls.
 - Fixed: AI Assistant settings - a saved Claude or OpenAI model that is no longer in the provider list showed an empty select ("Choose an option"); it is now offered as "(saved, no longer listed)" and saving the form keeps it.
 - Fixed: AI Assistant chat widget - product cards under an answer were empty (no name, price or image, link "#") and the FAQ chips under the greeting never appeared. The widget did not unwrap the { data, meta } envelope of the REST API.
