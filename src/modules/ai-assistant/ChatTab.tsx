@@ -56,7 +56,7 @@ function RatingStars( { rating }: { rating: number } ): JSX.Element {
 	);
 }
 
-function ConversationDetailModal( { id, onClose }: { id: number; onClose: () => void } ): JSX.Element {
+export function ConversationDetailModal( { id, onClose }: { id: number; onClose: () => void } ): JSX.Element {
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'ai-assistant', 'conversation', id ],
 		queryFn: () => api< ConversationDetail >( `ai-assistant/conversations/${ id }` ),

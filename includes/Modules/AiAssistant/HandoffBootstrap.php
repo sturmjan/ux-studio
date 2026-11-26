@@ -25,5 +25,6 @@ final class HandoffBootstrap {
 
 	public static function register_rest_routes(): void {
 		( new HandoffRestController() )->register_routes();
+		( new InquiryRestController() )->register_routes();
 	}
 }

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added: AI Assistant - new "Inquiries" tab: the contact messages and callback requests collected by the chat widget (until now only e-mailed and stored) can be browsed with date, type, name, e-mail, phone, message and page, filtered by type and status, marked as handled or new, deleted (also in bulk) and opened together with the related conversation. A badge on the tab counts the new inquiries.
+- Fixed: AI Assistant - the product index (used by chat product search and RAG) stored attributes and categories as JSON with escaped characters (`sta u nás. Vyberete si ještě dnes!`) and that raw JSON was also embedded for vector search, which hurt matching of Czech words. Product text is now plain and readable. After the update the products are re-indexed and their vectors re-computed once in the background (batched, once per site); until then search keeps working on the old data.
+- Fixed: AI Assistant - a chat session can no longer have two conversation rows: `session_id` is now a UNIQUE key (database upgrade 2). Duplicate rows that already exist are merged first - the oldest row keeps all messages in time order and the most advanced operator handoff state, the extra rows are removed.
 - Fixed: AI Assistant chat widget - a slow operator poll that returned after the "no operator available" timeout (or after cancelling) brought the "Waiting for an operator" banner back for good and hid the operator button. Late poll answers are now ignored and a hung poll times out after 20 s.
 - Fixed: AI Assistant - saving a chat answer no longer overwrites the conversation: the "customer requested / cancelled an operator" notes and operator replies added while the answer was still streaming were lost. Messages are now appended to the stored conversation.
 - Fixed: AI Assistant - one chat session could end up with two conversation rows (chat save and operator request inserting at the same moment); the duplicate is now removed.
