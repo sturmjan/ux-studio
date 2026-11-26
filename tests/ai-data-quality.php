@@ -39,6 +39,8 @@ function update_option( $k, $v, $autoload = null ) { $GLOBALS['opts'][ $k ] = $v
 function delete_option( $k ) { unset( $GLOBALS['opts'][ $k ] ); return true; }
 function wp_next_scheduled( $hook ) { foreach ( $GLOBALS['events'] as $e ) { if ( $e[1] === $hook ) { return $e[0]; } } return false; }
 function wp_schedule_single_event( $ts, $hook ) { $GLOBALS['events'][] = array( $ts, $hook ); return true; }
+function is_admin() { return $GLOBALS['is_admin'] ?? false; }
+function wp_doing_cron() { return $GLOBALS['doing_cron'] ?? false; }
 function clear_events() { $GLOBALS['events'] = array(); }
 function events(): array { return array_column( $GLOBALS['events'], 1 ); }
 function wc_get_products( $args ) { return $GLOBALS['wc_products'] ?? array(); }
@@ -265,6 +267,20 @@ KnowledgeBootstrap::maybe_schedule_product_text_fix();
 check( 'upgrade: scheduled once (one cron event, state "scheduled")', array( KnowledgeBootstrap::CRON_PRODUCT_TEXT_FIX ) === events() && 'scheduled' === get_option( KnowledgeBootstrap::OPTION_PRODUCT_TEXT_FIX ) );
 KnowledgeBootstrap::maybe_schedule_product_text_fix();
 check( 'upgrade: a second request schedules nothing', 1 === count( events() ) );
+
+// Self-healing: a stuck queue (no next batch scheduled) is resumed in cron/admin requests only.
+clear_events();
+update_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE, array( 5, 6 ) );
+KnowledgeBootstrap::maybe_schedule_product_text_fix();
+check( 'upgrade: a stuck vector queue is not touched on front-end requests', array() === events() );
+$GLOBALS['doing_cron'] = true;
+KnowledgeBootstrap::maybe_schedule_product_text_fix();
+check( 'upgrade: a stuck vector queue is resumed in a cron request', array( KnowledgeBootstrap::CRON_PRODUCT_VECTORS ) === events() );
+KnowledgeBootstrap::maybe_schedule_product_text_fix();
+check( 'upgrade: resuming does not double-schedule', 1 === count( events() ) );
+$GLOBALS['doing_cron'] = false;
+delete_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE );
+clear_events();
 
 clear_events();
 $GLOBALS['wc_products'] = array( 1, 2 ); // the re-index queue

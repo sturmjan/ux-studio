@@ -96,8 +96,24 @@ final class KnowledgeBootstrap {
 	 * (readable text) followed by a re-vectorization of the product vectors. Once per site; one option read per
 	 * request afterwards.
 	 */
+	/**
+	 * Self-healing of the product re-vectorization chain: each batch schedules the next one, so a run that dies
+	 * between the two (two overlapping WP-Cron runs, a killed request) would leave the queue stuck forever.
+	 * Checked only in admin and cron requests, so the front end pays nothing.
+	 */
+	private static function resume_product_vectors(): void {
+		if ( ! is_admin() && ! wp_doing_cron() ) {
+			return;
+		}
+		$queue = get_option( self::OPTION_PRODUCT_VECTOR_QUEUE, array() );
+		if ( ! empty( $queue ) && ! wp_next_scheduled( self::CRON_PRODUCT_VECTORS ) ) {
+			wp_schedule_single_event( time() + 10, self::CRON_PRODUCT_VECTORS );
+		}
+	}
+
 	public static function maybe_schedule_product_text_fix(): void {
 		if ( get_option( self::OPTION_PRODUCT_TEXT_FIX ) ) {
+			self::resume_product_vectors();
 			return;
 		}
 
