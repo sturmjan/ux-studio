@@ -444,7 +444,7 @@ final class ChatEngine {
 	 */
 	private function get_provider_order(): array {
 		$primary = (string) self::settings()->get( 'default_provider', 'claude' );
-		$all     = array( 'claude', 'openai', 'deepseek' );
+		$all     = array( 'claude', 'openai', 'deepseek', 'claude_code' );
 		$order   = array( $primary );
 
 		foreach ( $all as $id ) {

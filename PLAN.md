@@ -4751,3 +4751,225 @@ Modul `dashboard-widgets` měl tři záložky o jedné věci (Skrytí widgetů, 
   - Výchozí hodnoty ve schématu (`default` u `widget_*`) zůstaly původní (vypnuto, u modulů zapnuto), aby se web bez uložených hodnot po aktualizaci nezměnil.
 - **Pozn.:** widget `uxstudio_service_requests_widget` (Požadavky na služby) v kódu modulu Service Requests nikdo nezaregistruje, přepínač tedy zatím nic neovládá. Tabulka ho vede, náhled řekne „není zaregistrovaný“.
 - **Testy:** `tests/dashboard-widgets-unified.php` (čistý PHP: výchozí stav, opožděné výchozí skrytí, katalog, typy, stavy, přepínače), `tests/dashboard-widget-rules.php` (beze změny), `tests/dashboard-widget-rules-wp.php` (WordPress strana).
+
+## 45. Sdílené AI jádro pro UX1 Studio a UX1 Network app (CA) (2026-11-26, NÁVRH)
+
+Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat s vlastním RAG (stejná funkce jako AI asistent v UX1 Studiu), vloží ho na svůj web, a vývoj jádra běží na jednom místě, ne ve dvou větvích.
+
+### 45.1 Výchozí stav (ověřeno 2026-11-26)
+
+**Test základu v prohlížeči (Edge, lokální pobyty, přes Claude Code Bridge).** Funguje: widget, odpovědi z RAG (produkty, ruční znalosti), karty produktů, FAQ, předání na operátora (celý kruh), interní chat, Tvorba obsahu, Blog Pilot, callback a kontaktní formulář, nastavení widgetu. Opraveno (větev `feature/ai-chat-bridge-provider`): widget nečetl obálku `{data, meta}` (prázdné karty a FAQ, chyba je i v main 0.20.0), prázdný select modelu u zastaralého uloženého modelu, bridge bez odhadu tokenů (limity a statistika se u něj nepočítaly). Neověřeno: streamování na skutečném API, fallback mezi providery, reálné odeslání e-mailu.
+
+**Co už je sdílené a co ne.**
+
+| Oblast | UX1 Studio (WP plugin) | CA |
+|---|---|---|
+| Provider kontrakt | `AiProviderInterface` (generate, stream, tools, test), Claude/OpenAI/DeepSeek + bridge | `AbstractAiProvider` (jen `chat()`, bez streamu a embeddingů), 6 providerů včetně `claude_code` |
+| RAG | chunking, embeddingy (OpenAI nebo tf-idf fallback), vektory v JSON, cosine v PHP, hybrid s FULLTEXT | žádný (ani vektory, ani znalostní báze) |
+| Tenant | žádný `site_id`, oddělení dělá WP prefix tabulek | žádná entita "uživatel vlastní web"; jsou `sites`, `site_users`, `user_groups` |
+| Klíče a peníze | jeden klíč na web | BYOK (`user_api_keys`), kredity (`user_credits`), `ai_usage_log` |
+| Veřejný widget | vanilla JS, `same-origin`, nonce, žádné CORS | žádný veřejný widget, CORS jen u LegalDocs; HMAC a Bearer vzory pro server-to-server |
+| Streaming | SSE (ručně v controlleru) | žádný (`ai-chat.js` čeká na celý JSON) |
+
+### 45.2 Rozhodnutí o architektuře
+
+1. **Jádro je samostatná knihovna `ux1-ai-core`** (privátní repo `sturmjan/ux1-ai-core`, namespace `Ux1\AiCore`, čisté PHP bez volání WordPressu a bez frameworku). Plugin ji vendoruje do `vendor/`, CA do `lib/` (CA nemá Composer). Synchronizace skriptem `bin/sync-core` z tagované verze, aby se nikdy neupravovala kopie ve vendoru. Důvod proti monorepu: oba produkty mají jiný release cyklus (plugin: podepsané ZIPy, CA: nasazení na Hostinger).
+2. **Hostitel dodává "porty" (rozhraní), jádro dodává logiku.** WP a CA mají jen tenké adaptéry.
+3. **Tenant se jmenuje `bot_id`.** V jádru je každá tabulka a každý index označen `bot_id`. Plugin používá konstantu `bot_id = 0` (jeden bot na web, chování beze změny), CA má jeden `bot_id` na chat uživatele.
+4. **Jeden schéma-soubor** (SQL pro MySQL/MariaDB) v jádru. WP ho spouští přes `dbDelta`, CA přes `Migrator` (migrace 129 a dál; 120-127 jsou v číslování volné, nepoužívat).
+5. **Widget je jeden JS bundle v jádru.** Konfigurace z globální proměnné nebo `data-` atributů. Dva režimy: `same-origin` (WP, jako dnes) a `cross-origin` (CA: bez cookies, veřejný klíč bota, povolené domény).
+6. **Rozhraní odpovědí je jedno** (obálka `{data, meta}` nebo holé JSON, rozhodnout jednou) a widget přijímá obě varianty, ať se chyba z 45.1 neopakuje.
+7. **Upřesnění zadání (majitel, 2026-11-26): CA NEvyřizuje požadavky z WordPress webů.** Žádné proxy přes CA. Jádro je kód, který běží na dvou místech samostatně: uvnitř pluginu (na webu zákazníka, s jeho klíčem) a uvnitř CA (pro boty uživatelů CA). Nová funkce (například generování obrázků) se napíše jednou v jádru a obě aplikace ji dostanou vydáním nové verze jádra. Dashboardy jsou dva a zůstávají vlastní (admin UX1 Studia a CA), napojené na jádro přes jeho API a deklarativní schéma nastavení, ne sdílený UI kód. Sdílené je: logika (providery vč. obrázků, RAG, prompty, nástroje, limity), widget a schéma nastavení. Nesdílené je: úložiště (adaptéry), přihlášení, kredity a fakturace, vzhled dashboardů.
+8. **Pravidlo pro novou funkci:** logika a pole nastavení patří do jádra, dashboard je jen vykreslí (UX1 Studio už má deklarativní `settings_schema()`, CA si ho vykreslí svým stylem). Funkce, která potřebuje přístup k datům hostitele, dostane port (rozhraní), ne přímé volání WordPressu ani CA.
+
+### 45.3 Porty (co dodá hostitel)
+
+| Port | WP adaptér | CA adaptér |
+|---|---|---|
+| `HttpClient` (+ streamování) | `wp_remote_*` / cURL | `GuardedHttp` / cURL (stream přes `CURLOPT_WRITEFUNCTION`) |
+| `SettingsStore`, `SecretStore` | `Settings`, `Security::get_secret` | `ai_bots` + `AiKeyResolver` (BYOK, kredity) |
+| `ConversationRepo`, `KnowledgeRepo`, `FaqRepo`, `VectorStore`, `UsageRepo`, `InquiryRepo` | `$wpdb` | PDO |
+| `RateLimiter`, `Cache` | transienty | tabulka nebo APCu, vzor `PublicMailGuard` |
+| `Mailer` | `wp_mail` | CA mailer |
+| `Translator` | `__()` | CA překlady (jádro používá klíče, ne texty) |
+| `SourceProvider` | příspěvky, WooCommerce, dokumenty, URL | nahrané dokumenty, URL, sitemapa, ruční text |
+| `JobRunner` | WP-Cron | `CronController::tick`, těžké úlohy na NAS |
+| `Operators` (handoff) | WP uživatelé | uživatelé CA |
+
+### 45.4 Co se přesune do jádra a co zůstane
+
+- **Do jádra (čisté):** providery Claude/OpenAI/DeepSeek/Claude Code Bridge, `ChunkingEngine`, embeddingy (OpenAI + fallback), `VectorSearch`, `PromptBuilder` (bez statických `class_exists`), `ChatEngine`, `UsageLimiter` (logika), parsování dokumentů, generický registr nástrojů, widget JS a CSS.
+- **Zůstane v pluginu:** indexery WooCommerce a příspěvků a jejich háčky (`save_post`), Blog Pilot, SEO, MCP, HtmlToElementor, nástroje editoru.
+- **Zůstane v CA:** redakční nástroje `AiTools` (články, rubriky, fotky), `AiContext` a `ai-chat.js` pro interního asistenta. Později je lze nasadit na stejné jádro (F6).
+
+### 45.5 Chyby a slabiny, které se mají opravit při přesunu (ne přenést)
+
+- tf-idf fallback: dotaz má IDF = 1, dokumenty IDF z dávky, vektory jsou nekonzistentní.
+- Vektory různých embedding modelů jsou v jedné tabulce a hledání nefiltruje podle `embedding_model`.
+- Vektory jako JSON text, cosine přes celou tabulku v PHP (O(N) na dotaz). Pro CA ukládat binárně (`pack`) a omezit počet kandidátů předvýběrem přes FULLTEXT. Odhad: do desítek tisíc chunků na bota je to použitelné, měřit.
+- Dva chunkery (800 a 1500 znaků), sjednotit.
+- Poptávky z kontaktu a callbacku jsou jen v DB a v e-mailu, admin je nevypíše (hrozí ztráta leadů).
+- Karta produktu se po odpovědi stahuje dvakrát (zobrazení a uložení do historie).
+- Polling handoffu nemá timeout (jednou se při přetíženém serveru nepřijala zpráva operátora, neopakovatelné).
+- Streamování je v WP ručně (`header`, `flush`, `exit`) uvnitř controlleru, oddělit do emitteru.
+
+### 45.6 Fáze
+
+**F0 Dohoda a ochranná síť**
+- [x] Potvrdit rozhodnutí z 45.2 (repo, jmenný prostor, `bot_id`, minimální verze PHP): hotovo 2026-11-26, jádro cílí na PHP 8.1 (minimum pluginu, CA má 8.2+).
+- [x] Charakterizační test RAG: `tests/ai-rag-characterization.php` (chunking, záložní embedding, prokázaná chyba IDF z 45.5). Chat a handoff kryje e2e smoke test.
+- [ ] Charakterizační testy limitů (`UsageLimiter`) a skládání promptu (`PromptBuilder`).
+- [x] Edge smoke test `tests/e2e/ai-chat-smoke.mjs` (odpověď, karty, handoff celý kruh; konfigurace z proměnných prostředí, bez tajemství); 2026-11-26 prošlo 9/9.
+
+**F1 Čistá část jádra**
+- [x] Repo `sturmjan/ux1-ai-core` (privátní, lokálně `D:\xampp\htdocs\.komponenty\ux1-ai-core`): autoloader bez Composeru, vlastní testovací runner, strážce čistoty `tests/purity.php` (shodí build při volání WordPressu nebo CA), CI na PHP 8.1-8.4 zelené; 2026-11-26.
+- [ ] Přesunout providery (se streamem, embedem a odhadem tokenů) za rozhraní `HttpClient`.
+- [ ] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker).
+- [ ] Plugin přepnout na jádro, chování beze změny, testy zelené.
+
+**F2 Úložiště a tenant**
+- [ ] Rozhraní repozitářů a jeden schéma-soubor s `bot_id`.
+- [ ] `WpdbStorage` v pluginu, migrace stávajících tabulek (`bot_id = 0`) bez ztráty dat.
+- [ ] `ChatEngine`, `PromptBuilder`, `UsageLimiter` jen přes porty.
+
+**F3 Transport a widget**
+- [ ] `ChatService` vrací události, SSE emitter odděleně, tenké REST controllery v pluginu.
+- [ ] Widget jako bundle jádra, konfigurace přes `data-` atributy a globální objekt, přijímá obě varianty obálky.
+- [ ] Režim `cross-origin`: bez cookies, klíč bota, kontrola `Origin`, volitelně Turnstile, CORS s `Vary: Origin`.
+
+**F4 Adaptér CA (MVP)**
+- [ ] Migrace 129+: `ai_bots` (`user_id`, název, veřejný klíč, povolené domény, nastavení), tabulky jádra s `bot_id`.
+- [ ] `PdoStorage`, `KeyResolver` (BYOK, kredity, `ai_usage_log`), `CronController` pro indexaci.
+- [ ] Veřejný endpoint `?page=chat_api` (CORS, klíč bota, rate limit, Turnstile) a zápis do `ai_usage_log`.
+- [ ] Administrace bota ve stylu CA (shadcn): znalosti (text, URL, sitemapa, dokumenty), vzhled, domény, vložení (snippet), konverzace, poptávky.
+- [ ] Dokumenty do `storage/` mimo veřejný kořen, limity velikosti a typu, ochrana proti SSRF při crawlu (`GuardedHttp`).
+
+**F5 Provoz a bezpečnost**
+- [ ] Testy izolace tenantů (bot A nikdy nevidí data bota B, včetně vektorů a konverzací).
+- [ ] Ochrana proti prompt injection z crawlovaného obsahu, limity nákladů na bota, alerty.
+- [ ] GDPR: CA je zpracovatel konverzací návštěvníků klientů; retence, smazání, DPA text. Probrat s generátorem VOP/GDPR v CA.
+- [ ] `/security-review` před nasazením.
+- [ ] Měření výkonu vektorového hledání, rozhodnutí o prahu pro externí vektorové úložiště.
+
+**F6 Rozšíření (později)**
+- [ ] Handoff na operátora pro boty v CA.
+- [ ] Interní AI chat CA převést na jádro.
+- [ ] Sdílení znalostí mezi boty, šablony botů pro obor.
+
+### 45.7 Rizika
+
+- Hostinger: omezení `max_execution_time`, přepsání CSP u odpovědí CA. Indexace proto po dávkách přes cron, nikoli v requestu.
+- Vendorovaná kopie jádra se rozejde, pokud se upraví přímo ve vendoru. Hlídat CI kontrolou kontrolního součtu.
+- Náklady na tokeny u cizích botů: bez kreditů nebo BYOK nepustit.
+- Widget na cizím webu: CSP klienta může blokovat spojení, v dokumentaci uvést potřebné `connect-src` a `script-src`.
+
+### 45.8 Rozhodnutí
+
+1. **Repo jádra (rozhodnuto 2026-11-26): samostatné privátní repo `sturmjan/ux1-ai-core`** (varianta A z 45.12) s automatem, který po vydání verze jádra otevře aktualizační PR v pluginu i v CA. Lokálně je jádro do obou projektů připojené junction odkazem.
+2. **Účtování (rozhodnuto 2026-11-26): obojí, v CA i v pluginu.** Mezi providery přibude **„UX1 Network app“**: AI volání jde přes CA, tam se účtuje a kupují kredity. Vedle toho si každý dál může zvolit OpenAI, Anthropic, DeepSeek atd. s vlastním klíčem, jako dnes.
+   - Upřesňuje 45.2 bod 7: CA dál nevyřizuje chat ani požadavky webu, jen na výslovnou volbu poskytne **AI bránu** (model se volá přes CA kvůli účtování). Logika chatu, RAG i data zůstávají v pluginu.
+   - Plugin musí být spojen s účtem v CA (existující průvodce `connect_site` a klíč webu `sites.api_key`, podpis HMAC). Účtuje se uživateli CA, kterému web patří; bez spojení provider nejde zvolit.
+   - CA: nový endpoint AI brány (text, obrázky, embeddingy), rate limit, `AiKeyResolver` s kredity, `ai_usage_log` s `feature` podle původu (plugin web X, bot Y). Pro boty v CA je „UX1 Network app“ výchozí volba, BYOK volitelně.
+3. **Předání na operátora: ANO už v první verzi botů v CA** (rozhodnuto 2026-11-26). Operátor = vlastník bota (a jeho skupina) v adminu CA, upozornění e-mailem a v PWA (push už CA má).
+4. **Adresa: `app.ux1.cz/...`** (rozhodnuto 2026-11-26), například `https://app.ux1.cz/chat/v1/loader.js` a API `https://app.ux1.cz/chat/v1/...`. Zóna ux1.cz je na Cloudflare: loader cachovat na hraně s verzí v URL, API necachovat, ověřit, že CSP přepisovaná Hostingerem nevadí (týká se jen odpovědí CA, ne webu zákazníka).
+
+**Úkoly z rozhodnutí:**
+- [ ] Provider „UX1 Network app“ v jádru (klient AI brány) a endpoint AI brány v CA s účtováním kreditů.
+- [ ] Předání na operátora pro boty v CA přesunout z F6 do F4 (MVP).
+- [ ] Veřejné cesty `app.ux1.cz/chat/v1/` (loader, API), pravidla cache na Cloudflare.
+
+### 45.9 Funkční srovnání AI v CA a v UX1 Studiu (inventura 2026-11-26)
+
+Legenda: **CA** = jen Centrální aplikace, **UXS** = jen UX1 Studio, **obě** = existuje dvakrát (duplicita, kterou jádro odstraní).
+
+| Oblast | CA | UX1 Studio | Stav |
+|---|---|---|---|
+| Textové providery | hostinger, bridge přes WP, OpenAI, Anthropic, DeepSeek, Claude Code; fallback | Claude, OpenAI, DeepSeek, Claude Code Bridge; fallback na každý s klíčem | **obě** |
+| Streamování odpovědí | ne (celý JSON) | ano (SSE) | UXS |
+| Volání nástrojů | smyčka max 8 kol, redakční nástroje (weby, rubriky, fotky, koncept, publikace) | 5 vyhledávacích nástrojů (`mcp_enabled`), MCP server pro externí klienty | **obě** (jiné nástroje) |
+| Klíče a peníze | BYOK, kredity, ceník, `ai_usage_log`, upozornění na slabý zůstatek | jeden klíč na web, měsíční a denní limit tokenů | CA |
+| Generování obrázků | Gemini (náhled zdarma, finál placený), OpenAI gpt-image, styly, poměry, 1K-4K, referenční obrázek, odhad ceny, historie | není | CA |
+| ALT texty | hromadně, vision model | `/content/bulk-alt` (UI neověřeno) | **obě** |
+| Ořez pro sociální sítě | IG/FB formáty, podepsaná veřejná URL | není | CA |
+| Generování článku | AI chat s briefem, koncept, fotky, publikace | Tvorba obsahu (tón, délka, klíčové slovo, koncept) | **obě** |
+| Dávkové články | AI Agent (návrhy témat, výběr, generování na pozadí, kontrola v plátně, plánování) | Blog Pilot (generátory, témata, typy článků, rozvrh, spustit nyní) | **obě** |
+| Přepis cizího článku | Rewriter z URL + plátno s editačním chatem | Import HTML/URL do Elementoru | jiné |
+| Editace výběru textu | v plátně (přepsat výběr) | lišta editoru (rozšířit, přepsat, shrnout, gramatika) | **obě** |
+| Knihovna promptů | není | asi 37 nástrojů (osnovy, AIDA, PAS, e-mail, sociální sítě...) | UXS |
+| Popisky pro sociální sítě | z článku (Agent) | v Tvorbě obsahu | **obě** |
+| SEO | SEO AI API pro plugin (témata, schema, odkazy) | SEO skóre v editoru, meta, hromadná oprava | jiné |
+| Hlas značky / brand kit | učení stylu z korpusu, brand kit | není | CA |
+| Odpovědi na recenze, tikety | ano | není | CA |
+| Interní chat pro tým | AI chat CA (zná weby uživatele) | interní chat s RAG | **obě** |
+| **Veřejný chat pro návštěvníky** | **není** | widget: bublina/postranní panel, barvy, texty, GDPR, auto-otevření, nečinnost, FAQ chipy, karty produktů, hodnocení, kontakt, callback, předání na operátora, zvuky, cs/en/auto | UXS |
+| RAG a znalosti | není | dokumenty (PDF, DOCX, TXT, MD), ruční záznamy, FAQ (i návrh z konverzací a z tématu), URL, sitemapa, text, produkty, obsah webu, vektory + FULLTEXT | UXS |
+| Pravidla chatu | `ca_system_prompt_extra` | `custom_system_prompt` (tón/persona/povolená témata NEJSOU) | **obě** (slabé) |
+| Operátor | není | seznam konverzací, filtr hodnocení, fronta předání, převzít/odpovědět/vrátit AI, e-mail upozornění | UXS |
+| Poptávky z chatu | není | ukládají se, ale admin je nevidí | UXS (díra) |
+
+**Závěr inventury:** UX1 Studio má hotový veřejný chat se znalostní bází, CA má hotovou ekonomiku (BYOK, kredity, ceník), obrázky a pokročilé redakční workflow. Duplicitně se dnes vyvíjí: providery, generování a dávkové články, ALT texty, popisky pro sítě, editace textu a interní chat.
+
+### 45.10 Co má jádro umět v základu
+
+Jádro sjednotí to nejlepší z obou. Hostitel (plugin nebo CA) jen dodá úložiště, přihlášení, publikaci a vzhled administrace.
+
+1. **AI brána (gateway).** Všechny textové providery z obou aplikací, streamování, nástroje, embeddingy, fallback, počítání tokenů a **ceník z CA** (`AiPricing`) pro odhad ceny všude. Klíč dodá hostitel přes port `KeyResolver` (plugin: klíč webu; CA: BYOK, pak kredity).
+2. **Obrázky.** Providery a nastavení z CA (Gemini, OpenAI gpt-image, styly, poměry, rozlišení, referenční obrázek, odhad ceny), ALT texty přes vision model, ořezy pro sociální sítě. Plugin tím získá generování obrázků a náhledových fotek bez nového kódu.
+3. **Chatový engine.** Konverzace, historie, streamování, smyčka nástrojů (max N kol), generický registr nástrojů (každý hostitel přidá své nástroje), **pravidla bota** (viz níže), limity a rozpočty.
+4. **Pravidla bota (nové, dostanou obě).** Jméno a persona, tón, délka odpovědí, jazyk, povolená a zakázaná témata, co dělat při nejistotě (nabídnout kontakt, předat operátorovi), vlastní instrukce, povinná upozornění. Jádro z nich skládá systémový prompt stejně v obou aplikacích.
+5. **Znalosti a RAG.** Zdroje: ruční text, dokumenty, FAQ, URL, sitemapa, crawl webu, plus zdroje od hostitele (plugin: příspěvky a WooCommerce). Chunking, embeddingy, hybridní hledání, návrh FAQ z konverzací a z tématu, plánovaná reindexace.
+6. **Widget.** Vše z UX1 Studia a navíc: typ "vložený do stránky" (inline), bezpečný markdown, předvolby vzhledu, logo nebo avatar, vlastní ikona bubliny, izolace stylů přes Shadow DOM (na cizím webu se nepohádá s jeho CSS), režim `cross-origin`. Obecné **karty** místo karet jen pro WooCommerce (název, obrázek, cena, odkaz z jakéhokoliv zdroje).
+7. **Návštěvnické funkce.** GDPR souhlas, hodnocení, kontakt, callback, **schránka poptávek s výpisem**, předání na operátora.
+8. **Obsahové nástroje.** Knihovna promptů (37 nástrojů z UXS), generování článku, editace výběru, popisky pro sítě, přepis z URL, **jedna dávková pipeline** (témata, výběr, generování, kontrola, plánování), která nahradí AI Agenta i Blog Pilota. Publikaci (WP příspěvek lokálně nebo přes API vzdáleného webu) dodá hostitel.
+9. **Hlas značky.** Učení stylu a brand kit z CA, použitelné v chatu i v obsahu.
+10. **Deklarativní schéma nastavení.** Každá funkce jádra popíše svá pole (typ, výchozí hodnota, nápověda, rozsah). Admin UX1 Studia i CA je vykreslí svým stylem, takže nová funkce nepotřebuje psát formulář dvakrát.
+
+Zůstává mimo jádro: indexery WooCommerce a příspěvků, MCP server pluginu, SEO panel v editoru a Elementor (vázané na WordPress); odpovědi na recenze a AI tikety v CA (lze je ale napsat jako nástroje z knihovny promptů).
+
+### 45.11 Uživatelské AI boty v CA (zadání majitele 2026-11-26)
+
+**Princip.** Každý uživatel CA si v administraci založí vlastního bota (jeden nebo víc): vlastní znalosti, vlastní model, vlastní pravidla, vlastní vzhled. CA vygeneruje kód, který si vloží na svůj web. Bot běží v CA (návštěvník jeho webu mluví s CA), data a náklady patří uživateli.
+
+**Průvodce založením bota (admin CA):**
+1. **Základ:** název bota, web (doména), jazyk. Doména se zapíše do povolených domén.
+2. **Znalosti:** nahrát dokumenty, přidat URL nebo sitemapu (crawl webu uživatele), ruční text, FAQ. Průběh indexace na pozadí (cron po dávkách). Návrh FAQ z tématu.
+3. **Model a pravidla:** provider a model (s BYOK libovolný model providera, s kredity jen povolený seznam s cenou za zprávu), persona, tón, délka, povolená a zakázaná témata, chování při nejistotě, vlastní instrukce, kontaktní e-mail pro poptávky.
+4. **Vzhled:** předvolby (několik šablon), barvy, typ (bublina, postranní panel, vložený), pozice, logo nebo avatar, texty (název, pozdrav, placeholder, GDPR), auto-otevření. Živý náhled vedle formuláře.
+5. **Test:** zkušební chat přímo v adminu nad stejnými daty (nespotřebovává limit návštěvníků, ale účtuje tokeny).
+6. **Vložení:** CA vygeneruje snippet, například
+   `<script src="https://<adresa>/chat/v1/loader.js" data-bot="pk_xxx" async></script>`
+   a návod pro WordPress (nebo rovnou plugin UX1 Studio), Shoptet, Webnode a čisté HTML. Volitelně ověření domény (meta tag nebo DNS TXT).
+7. **Provoz:** konverzace, poptávky, hodnocení, statistiky, spotřeba a náklady, limity (denní rozpočet v Kč/USD, zpráv na návštěvníka), vypnutí bota.
+
+**Datový model (migrace 129+):** `ai_bots` (`id`, `user_id`, `name`, `public_key`, `allowed_domains`, `status`, `settings` JSON podle schématu jádra, `created_at`), všechny tabulky jádra s `bot_id`. Přístup přes `user_id` a `SiteAccess`/skupiny, admin CA vidí vše.
+
+**Veřejné API bota:** `chat_api` s veřejným klíčem bota, kontrolou `Origin` proti `allowed_domains`, CORS s `Vary: Origin`, rate limit na IP a relaci, denní rozpočet bota, volitelně neviditelný Turnstile, streamování (SSE). Klíč `pk_` není tajemství, ochranu dělá kombinace domény, limitů a rozpočtu.
+
+**Peníze:** BYOK nebo kredity přes stávající `AiKeyResolver` a `ai_usage_log` (feature `bot_chat`), u každého bota denní a měsíční strop a e-mail při 80 %.
+
+**Bezpečnost a právo:** izolace botů testy (bot A nikdy nevidí data bota B), prompt injection z crawlovaného obsahu (obsah je data, ne instrukce), SSRF ochrana crawleru (`GuardedHttp`), uploady mimo veřejný kořen, retence konverzací nastavitelná na bota, CA vystupuje jako zpracovatel (DPA, text pro web uživatele z generátoru VOP/GDPR).
+
+**Úkoly navíc k F4:**
+- [ ] Pravidla bota (persona, tón, délka, témata, chování při nejistotě) v jádru, použít i v pluginu.
+- [ ] Widget: typ inline, Shadow DOM, předvolby vzhledu, logo/avatar, bezpečný markdown, obecné karty.
+- [ ] Průvodce botem v CA (7 kroků výše) s živým náhledem a zkušebním chatem.
+- [ ] Generátor vkládacího kódu a návody (WordPress, Shoptet, Webnode, HTML), volitelné ověření domény.
+- [ ] Rozpočty a stropy na bota, upozornění, statistiky nákladů.
+- [ ] Schránka poptávek (v CA i v pluginu).
+
+### 45.12 Kde bude žít kód jádra (podklad pro rozhodnutí 1)
+
+Otázka není technická drobnost: určuje, jak rychle se úprava dostane do obou aplikací a jak snadno se kopie rozejdou.
+
+**Jak to vypadá v praxi u každé varianty (příklad: přidám generování obrázků do jádra).**
+
+| Varianta | Kde se upravuje | Jak se úprava dostane do pluginu a do CA | Plus | Minus |
+|---|---|---|---|---|
+| **A. Samostatné repo `ux1-ai-core`** | jen v repu jádra | tag verze jádra, automat (GitHub Action) otevře v repu pluginu i CA PR „aktualizovat jádro na 1.3.0“, schválit, vydat | jeden zdroj pravdy, jasné verze, oba produkty mohou mít jinou verzi jádra a nic se nerozbije nečekaně | o jedno repo víc, každá změna jádra = 3 PR (jádro, plugin, CA), i když automaticky |
+| **B. Jádro jako složka v repu pluginu** | ve složce pluginu `core/` | plugin ho má hned; CA si složku kopíruje skriptem z tagu pluginu | žádné nové repo, plugin se vyvíjí jako dnes | CA závisí na vydáních pluginu; nejasné, co je jádro a co plugin; v pluginu je svádí sahat na WordPress |
+| **C. Jádro jako složka v repu CA** | ve složce CA `lib/ai-core` | CA ho má hned; plugin si kopíruje z tagu CA | žádné nové repo | plugin závisí na CA; CA má rychlejší nasazování než podepsané vydání pluginu, rozjede se to |
+| **D. Jedno velké repo pro plugin + CA (monorepo)** | kdekoli v jednom repu | jeden PR mění jádro i oba produkty najednou | nejrychlejší vývoj, jedna změna = jeden PR | velké přestěhování obou projektů, jiné nasazení (podepsaný ZIP vs Hostinger), riziko rozbití stávajících postupů vydávání |
+
+**Lokální vývoj ve všech variantách stejně:** jádro bude v obou lokálních projektech připojené odkazem na jednu složku (junction, stejně jako dnes `ux-studio-csp`), takže úpravu v jádru hned vidím na lokálních pobytech i v lokální CA a otestuju obojí bez kopírování. Kopie s pevnou verzí vzniká až při vydání.
+
+**Doporučení: A**, s automatem na aktualizaci (bez něj by to bylo pomalé). Důvody: oba produkty se vydávají jinak a v jiném tempu (plugin podepsanými ZIPy pro weby klientů, CA nasazením na Hostinger), takže každý potřebuje vlastní pevnou verzi jádra; jádro bude čisté (v samostatném repu nejde omylem zavolat WordPress ani CA); a pozdější třetí hostitel (UX1 Studio pro Joomlu) se připojí stejně. D je lákavé pro rychlost, ale znamená přestavět vydávání obou projektů; dává smysl až později, pokud se A ukáže jako pomalé.

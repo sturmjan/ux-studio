@@ -27,6 +27,7 @@ final class Module extends BaseModule {
 	private const SECRET_CLAUDE   = 'uxstudio_secret_ai_assistant_claude_api_key';
 	private const SECRET_OPENAI   = 'uxstudio_secret_ai_assistant_openai_api_key';
 	private const SECRET_DEEPSEEK = 'uxstudio_secret_ai_assistant_deepseek_api_key';
+	private const SECRET_CLAUDE_CODE = 'uxstudio_secret_ai_assistant_claude_code_api_key';
 
 	/**
 	 * provider id => secret option name.
@@ -34,9 +35,10 @@ final class Module extends BaseModule {
 	 * @var array<string, string>
 	 */
 	private const PROVIDER_SECRETS = array(
-		'claude'   => self::SECRET_CLAUDE,
-		'openai'   => self::SECRET_OPENAI,
-		'deepseek' => self::SECRET_DEEPSEEK,
+		'claude'      => self::SECRET_CLAUDE,
+		'openai'      => self::SECRET_OPENAI,
+		'deepseek'    => self::SECRET_DEEPSEEK,
+		'claude_code' => self::SECRET_CLAUDE_CODE,
 	);
 
 	/** Daily purge of the usage/error log and internal chat history (see Core\Retention). */
@@ -411,6 +413,23 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Keeps a stored model id selectable after the provider's model list moved on
+	 * (otherwise the select shows "choose" although a working model is saved).
+	 *
+	 * @param array<string, string> $models Models offered by the provider.
+	 * @param string                $key    Settings key holding the chosen model.
+	 * @return array<string, string>
+	 */
+	private static function models_with_current( array $models, string $key ): array {
+		$stored  = get_option( 'uxstudio_ai_assistant', array() );
+		$current = is_array( $stored ) ? (string) ( $stored[ $key ] ?? '' ) : '';
+		if ( '' !== $current && ! isset( $models[ $current ] ) ) {
+			$models[ $current ] = $current . ' (' . __( 'saved, no longer listed', 'ux-studio' ) . ')';
+		}
+		return $models;
+	}
+
+	/**
 	 * Settings schema: default provider + per-provider API key/model, plus
 	 * usage limits and general chat behaviour.
 	 */
@@ -437,7 +456,7 @@ final class Module extends BaseModule {
 				'key'     => 'claude_model',
 				'type'    => 'select',
 				'label'   => __( 'Claude model', 'ux-studio' ),
-				'options' => $providers['claude']['models'],
+				'options' => self::models_with_current( $providers['claude']['models'], 'claude_model' ),
 				'default' => array_key_first( $providers['claude']['models'] ),
 			),
 			array(
@@ -451,7 +470,7 @@ final class Module extends BaseModule {
 				'key'     => 'openai_model',
 				'type'    => 'select',
 				'label'   => __( 'OpenAI model', 'ux-studio' ),
-				'options' => $providers['openai']['models'],
+				'options' => self::models_with_current( $providers['openai']['models'], 'openai_model' ),
 				'default' => array_key_first( $providers['openai']['models'] ),
 			),
 			array(
@@ -465,8 +484,29 @@ final class Module extends BaseModule {
 				'key'     => 'deepseek_model',
 				'type'    => 'select',
 				'label'   => __( 'DeepSeek model', 'ux-studio' ),
-				'options' => $providers['deepseek']['models'],
+				'options' => self::models_with_current( $providers['deepseek']['models'], 'deepseek_model' ),
 				'default' => array_key_first( $providers['deepseek']['models'] ),
+			),
+			array(
+				'key'     => 'claude_code_api_key',
+				'type'    => 'text',
+				'label'   => __( 'Claude Code Bridge token', 'ux-studio' ),
+				'help'    => __( 'Development provider: a local Claude Code Bridge daemon. Stored encrypted. Leave blank to keep the current token.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'claude_code_url',
+				'type'    => 'text',
+				'label'   => __( 'Claude Code Bridge URL', 'ux-studio' ),
+				'help'    => __( 'For example http://127.0.0.1:7777 (without a trailing slash).', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'claude_code_workdir',
+				'type'    => 'text',
+				'label'   => __( 'Claude Code Bridge working directory', 'ux-studio' ),
+				'help'    => __( 'Must be on the bridge allowlist.', 'ux-studio' ),
+				'default' => '',
 			),
 			array(
 				'key'     => 'monthly_token_limit',

@@ -40658,3 +40658,31 @@ msgstr "Kam půjde odpověď. Pomocí {email} odpovíte přímo návštěvníkov
 #: includes/Modules/Consent/Module.php:784
 msgid "A card with a close cross and the categories as rows with switches."
 msgstr "Karta s křížkem pro zavření a kategoriemi jako řádky s přepínači."
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "Claude Code Bridge token"
+msgstr "Token pro Claude Code Bridge"
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "Development provider: a local Claude Code Bridge daemon. Stored encrypted. Leave blank to keep the current token."
+msgstr "Vývojový poskytovatel: lokální démon Claude Code Bridge. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího tokenu."
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "Claude Code Bridge URL"
+msgstr "Adresa Claude Code Bridge"
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "For example http://127.0.0.1:7777 (without a trailing slash)."
+msgstr "Například http://127.0.0.1:7777 (bez lomítka na konci)."
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "Claude Code Bridge working directory"
+msgstr "Pracovní složka Claude Code Bridge"
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "Must be on the bridge allowlist."
+msgstr "Musí být na seznamu povolených složek v bridge."
+
+#: includes/Modules/AiAssistant/Module.php
+msgid "saved, no longer listed"
+msgstr "uloženo, už není v nabídce"
