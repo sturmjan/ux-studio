@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added: AI Assistant - "Claude Code Bridge (local PC)" provider for development and internal use: talks to a local Claude Code Bridge daemon (token stored encrypted, URL and working directory in Settings). Answers are not streamed and tool calling is not offered; token usage is estimated so limits and statistics count these calls.
+- Fixed: AI Assistant settings - a saved Claude or OpenAI model that is no longer in the provider list showed an empty select ("Choose an option"); it is now offered as "(saved, no longer listed)" and saving the form keeps it.
 - Fixed: AI Assistant chat widget - product cards under an answer were empty (no name, price or image, link "#") and the FAQ chips under the greeting never appeared. The widget did not unwrap the { data, meta } envelope of the REST API.
 - Changed: AI Assistant chat widget - product card prices are grouped by the page language ("11 890 Kč" instead of "11890.00 Kč").
 
