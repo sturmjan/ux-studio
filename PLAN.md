@@ -4868,3 +4868,82 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 2. Peníze u botů v CA: vlastní klíč uživatele (BYOK), kredity z centrálního klíče, nebo obojí jako dnes u generování obsahu?
 3. Má MVP botů v CA obsahovat předání na operátora, nebo až F6?
 4. Veřejná adresa a značka vkládacího skriptu (`ux1.cz`, `app.ux1.cz`, vlastní doména).
+
+### 45.9 Funkční srovnání AI v CA a v UX1 Studiu (inventura 2026-11-26)
+
+Legenda: **CA** = jen Centrální aplikace, **UXS** = jen UX1 Studio, **obě** = existuje dvakrát (duplicita, kterou jádro odstraní).
+
+| Oblast | CA | UX1 Studio | Stav |
+|---|---|---|---|
+| Textové providery | hostinger, bridge přes WP, OpenAI, Anthropic, DeepSeek, Claude Code; fallback | Claude, OpenAI, DeepSeek, Claude Code Bridge; fallback na každý s klíčem | **obě** |
+| Streamování odpovědí | ne (celý JSON) | ano (SSE) | UXS |
+| Volání nástrojů | smyčka max 8 kol, redakční nástroje (weby, rubriky, fotky, koncept, publikace) | 5 vyhledávacích nástrojů (`mcp_enabled`), MCP server pro externí klienty | **obě** (jiné nástroje) |
+| Klíče a peníze | BYOK, kredity, ceník, `ai_usage_log`, upozornění na slabý zůstatek | jeden klíč na web, měsíční a denní limit tokenů | CA |
+| Generování obrázků | Gemini (náhled zdarma, finál placený), OpenAI gpt-image, styly, poměry, 1K-4K, referenční obrázek, odhad ceny, historie | není | CA |
+| ALT texty | hromadně, vision model | `/content/bulk-alt` (UI neověřeno) | **obě** |
+| Ořez pro sociální sítě | IG/FB formáty, podepsaná veřejná URL | není | CA |
+| Generování článku | AI chat s briefem, koncept, fotky, publikace | Tvorba obsahu (tón, délka, klíčové slovo, koncept) | **obě** |
+| Dávkové články | AI Agent (návrhy témat, výběr, generování na pozadí, kontrola v plátně, plánování) | Blog Pilot (generátory, témata, typy článků, rozvrh, spustit nyní) | **obě** |
+| Přepis cizího článku | Rewriter z URL + plátno s editačním chatem | Import HTML/URL do Elementoru | jiné |
+| Editace výběru textu | v plátně (přepsat výběr) | lišta editoru (rozšířit, přepsat, shrnout, gramatika) | **obě** |
+| Knihovna promptů | není | asi 37 nástrojů (osnovy, AIDA, PAS, e-mail, sociální sítě...) | UXS |
+| Popisky pro sociální sítě | z článku (Agent) | v Tvorbě obsahu | **obě** |
+| SEO | SEO AI API pro plugin (témata, schema, odkazy) | SEO skóre v editoru, meta, hromadná oprava | jiné |
+| Hlas značky / brand kit | učení stylu z korpusu, brand kit | není | CA |
+| Odpovědi na recenze, tikety | ano | není | CA |
+| Interní chat pro tým | AI chat CA (zná weby uživatele) | interní chat s RAG | **obě** |
+| **Veřejný chat pro návštěvníky** | **není** | widget: bublina/postranní panel, barvy, texty, GDPR, auto-otevření, nečinnost, FAQ chipy, karty produktů, hodnocení, kontakt, callback, předání na operátora, zvuky, cs/en/auto | UXS |
+| RAG a znalosti | není | dokumenty (PDF, DOCX, TXT, MD), ruční záznamy, FAQ (i návrh z konverzací a z tématu), URL, sitemapa, text, produkty, obsah webu, vektory + FULLTEXT | UXS |
+| Pravidla chatu | `ca_system_prompt_extra` | `custom_system_prompt` (tón/persona/povolená témata NEJSOU) | **obě** (slabé) |
+| Operátor | není | seznam konverzací, filtr hodnocení, fronta předání, převzít/odpovědět/vrátit AI, e-mail upozornění | UXS |
+| Poptávky z chatu | není | ukládají se, ale admin je nevidí | UXS (díra) |
+
+**Závěr inventury:** UX1 Studio má hotový veřejný chat se znalostní bází, CA má hotovou ekonomiku (BYOK, kredity, ceník), obrázky a pokročilé redakční workflow. Duplicitně se dnes vyvíjí: providery, generování a dávkové články, ALT texty, popisky pro sítě, editace textu a interní chat.
+
+### 45.10 Co má jádro umět v základu
+
+Jádro sjednotí to nejlepší z obou. Hostitel (plugin nebo CA) jen dodá úložiště, přihlášení, publikaci a vzhled administrace.
+
+1. **AI brána (gateway).** Všechny textové providery z obou aplikací, streamování, nástroje, embeddingy, fallback, počítání tokenů a **ceník z CA** (`AiPricing`) pro odhad ceny všude. Klíč dodá hostitel přes port `KeyResolver` (plugin: klíč webu; CA: BYOK, pak kredity).
+2. **Obrázky.** Providery a nastavení z CA (Gemini, OpenAI gpt-image, styly, poměry, rozlišení, referenční obrázek, odhad ceny), ALT texty přes vision model, ořezy pro sociální sítě. Plugin tím získá generování obrázků a náhledových fotek bez nového kódu.
+3. **Chatový engine.** Konverzace, historie, streamování, smyčka nástrojů (max N kol), generický registr nástrojů (každý hostitel přidá své nástroje), **pravidla bota** (viz níže), limity a rozpočty.
+4. **Pravidla bota (nové, dostanou obě).** Jméno a persona, tón, délka odpovědí, jazyk, povolená a zakázaná témata, co dělat při nejistotě (nabídnout kontakt, předat operátorovi), vlastní instrukce, povinná upozornění. Jádro z nich skládá systémový prompt stejně v obou aplikacích.
+5. **Znalosti a RAG.** Zdroje: ruční text, dokumenty, FAQ, URL, sitemapa, crawl webu, plus zdroje od hostitele (plugin: příspěvky a WooCommerce). Chunking, embeddingy, hybridní hledání, návrh FAQ z konverzací a z tématu, plánovaná reindexace.
+6. **Widget.** Vše z UX1 Studia a navíc: typ "vložený do stránky" (inline), bezpečný markdown, předvolby vzhledu, logo nebo avatar, vlastní ikona bubliny, izolace stylů přes Shadow DOM (na cizím webu se nepohádá s jeho CSS), režim `cross-origin`. Obecné **karty** místo karet jen pro WooCommerce (název, obrázek, cena, odkaz z jakéhokoliv zdroje).
+7. **Návštěvnické funkce.** GDPR souhlas, hodnocení, kontakt, callback, **schránka poptávek s výpisem**, předání na operátora.
+8. **Obsahové nástroje.** Knihovna promptů (37 nástrojů z UXS), generování článku, editace výběru, popisky pro sítě, přepis z URL, **jedna dávková pipeline** (témata, výběr, generování, kontrola, plánování), která nahradí AI Agenta i Blog Pilota. Publikaci (WP příspěvek lokálně nebo přes API vzdáleného webu) dodá hostitel.
+9. **Hlas značky.** Učení stylu a brand kit z CA, použitelné v chatu i v obsahu.
+10. **Deklarativní schéma nastavení.** Každá funkce jádra popíše svá pole (typ, výchozí hodnota, nápověda, rozsah). Admin UX1 Studia i CA je vykreslí svým stylem, takže nová funkce nepotřebuje psát formulář dvakrát.
+
+Zůstává mimo jádro: indexery WooCommerce a příspěvků, MCP server pluginu, SEO panel v editoru a Elementor (vázané na WordPress); odpovědi na recenze a AI tikety v CA (lze je ale napsat jako nástroje z knihovny promptů).
+
+### 45.11 Uživatelské AI boty v CA (zadání majitele 2026-11-26)
+
+**Princip.** Každý uživatel CA si v administraci založí vlastního bota (jeden nebo víc): vlastní znalosti, vlastní model, vlastní pravidla, vlastní vzhled. CA vygeneruje kód, který si vloží na svůj web. Bot běží v CA (návštěvník jeho webu mluví s CA), data a náklady patří uživateli.
+
+**Průvodce založením bota (admin CA):**
+1. **Základ:** název bota, web (doména), jazyk. Doména se zapíše do povolených domén.
+2. **Znalosti:** nahrát dokumenty, přidat URL nebo sitemapu (crawl webu uživatele), ruční text, FAQ. Průběh indexace na pozadí (cron po dávkách). Návrh FAQ z tématu.
+3. **Model a pravidla:** provider a model (s BYOK libovolný model providera, s kredity jen povolený seznam s cenou za zprávu), persona, tón, délka, povolená a zakázaná témata, chování při nejistotě, vlastní instrukce, kontaktní e-mail pro poptávky.
+4. **Vzhled:** předvolby (několik šablon), barvy, typ (bublina, postranní panel, vložený), pozice, logo nebo avatar, texty (název, pozdrav, placeholder, GDPR), auto-otevření. Živý náhled vedle formuláře.
+5. **Test:** zkušební chat přímo v adminu nad stejnými daty (nespotřebovává limit návštěvníků, ale účtuje tokeny).
+6. **Vložení:** CA vygeneruje snippet, například
+   `<script src="https://<adresa>/chat/v1/loader.js" data-bot="pk_xxx" async></script>`
+   a návod pro WordPress (nebo rovnou plugin UX1 Studio), Shoptet, Webnode a čisté HTML. Volitelně ověření domény (meta tag nebo DNS TXT).
+7. **Provoz:** konverzace, poptávky, hodnocení, statistiky, spotřeba a náklady, limity (denní rozpočet v Kč/USD, zpráv na návštěvníka), vypnutí bota.
+
+**Datový model (migrace 129+):** `ai_bots` (`id`, `user_id`, `name`, `public_key`, `allowed_domains`, `status`, `settings` JSON podle schématu jádra, `created_at`), všechny tabulky jádra s `bot_id`. Přístup přes `user_id` a `SiteAccess`/skupiny, admin CA vidí vše.
+
+**Veřejné API bota:** `chat_api` s veřejným klíčem bota, kontrolou `Origin` proti `allowed_domains`, CORS s `Vary: Origin`, rate limit na IP a relaci, denní rozpočet bota, volitelně neviditelný Turnstile, streamování (SSE). Klíč `pk_` není tajemství, ochranu dělá kombinace domény, limitů a rozpočtu.
+
+**Peníze:** BYOK nebo kredity přes stávající `AiKeyResolver` a `ai_usage_log` (feature `bot_chat`), u každého bota denní a měsíční strop a e-mail při 80 %.
+
+**Bezpečnost a právo:** izolace botů testy (bot A nikdy nevidí data bota B), prompt injection z crawlovaného obsahu (obsah je data, ne instrukce), SSRF ochrana crawleru (`GuardedHttp`), uploady mimo veřejný kořen, retence konverzací nastavitelná na bota, CA vystupuje jako zpracovatel (DPA, text pro web uživatele z generátoru VOP/GDPR).
+
+**Úkoly navíc k F4:**
+- [ ] Pravidla bota (persona, tón, délka, témata, chování při nejistotě) v jádru, použít i v pluginu.
+- [ ] Widget: typ inline, Shadow DOM, předvolby vzhledu, logo/avatar, bezpečný markdown, obecné karty.
+- [ ] Průvodce botem v CA (7 kroků výše) s živým náhledem a zkušebním chatem.
+- [ ] Generátor vkládacího kódu a návody (WordPress, Shoptet, Webnode, HTML), volitelné ověření domény.
+- [ ] Rozpočty a stropy na bota, upozornění, statistiky nákladů.
+- [ ] Schránka poptávek (v CA i v pluginu).
