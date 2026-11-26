@@ -40936,3 +40936,407 @@ msgstr "API klíč OpenAI pro obrázky je nastaven."
 #: build/313.1b54dd92044334346439.js:4
 msgid "No OpenAI image API key set yet."
 msgstr "API klíč OpenAI pro obrázky zatím není nastaven."
+
+#: includes/Modules/AiAssistant/BlogPilot/CalendarService.php:24
+msgid "Choose a month between 2000 and 2100."
+msgstr "Vyberte měsíc mezi lety 2000 a 2100."
+
+#. translators: %s: WP_Error message
+#: includes/Modules/AiAssistant/BlogPilot/PostCreator.php:101
+msgid "Error updating the post: %s"
+msgstr "Chyba při úpravě příspěvku: %s"
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:64
+msgid "Only a draft, pending or scheduled post can be scheduled."
+msgstr "Naplánovat lze jen koncept, příspěvek čekající na schválení nebo už naplánovaný příspěvek."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:67
+msgid "You are not allowed to schedule this post."
+msgstr "Nemáte oprávnění tento příspěvek naplánovat."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:73
+msgid "Enter a valid date and time."
+msgstr "Zadejte platné datum a čas."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:76
+msgid "Choose a moment in the future."
+msgstr "Vyberte okamžik v budoucnosti."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:96
+msgid "Only a draft or pending post can be approved."
+msgstr "Schválit lze jen koncept nebo příspěvek čekající na schválení."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:137
+msgid "Choose publish now, a date or the planned slot."
+msgstr "Vyberte zveřejnění hned, konkrétní datum nebo další naplánovaný termín."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:214
+msgid "A published post cannot be rejected here."
+msgstr "Publikovaný příspěvek se tady zamítnout nedá."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:217
+msgid "Could not move the post to the trash."
+msgstr "Příspěvek se nepodařilo přesunout do koše."
+
+#: includes/Modules/AiAssistant/BlogPilot/PostWorkflow.php:281
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:500
+msgid "You are not allowed to do this with this post."
+msgstr "S tímto příspěvkem nemáte oprávnění to udělat."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:90
+msgid "The publish plan must be an object."
+msgstr "Plán zveřejňování musí být objekt."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:93
+msgid "The publish plan mode must be \"range\" or \"period\"."
+msgstr "Typ plánu zveřejňování musí být „range“ nebo „period“."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:97
+msgid "The publish plan has an invalid date."
+msgstr "Plán zveřejňování obsahuje neplatné datum."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:102
+msgid "A date range needs a start date and an end date that is not before it."
+msgstr "Rozsah dat potřebuje počáteční datum a koncové datum, které není před ním."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:107
+msgid "The publish plan has an invalid time."
+msgstr "Plán zveřejňování obsahuje neplatný čas."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:111
+msgid "The end of the time window must be later than its start."
+msgstr "Konec časového okna musí být později než jeho začátek."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:114
+msgid "Posts per day or week must be between 1 and 100."
+msgstr "Počet příspěvků za den nebo týden musí být od 1 do 100."
+
+#: includes/Modules/AiAssistant/BlogPilot/PublishSlots.php:117
+msgid "Choose at least one weekday."
+msgstr "Vyberte alespoň jeden den v týdnu."
+
+#. translators: %s: site name
+#: includes/Modules/AiAssistant/BlogPilot/SiteContext.php:97
+msgid "Blog articles for the website \"%s\"."
+msgstr "Blogové články pro web „%s“."
+
+#. translators: 1: site name, 2: site tagline
+#: includes/Modules/AiAssistant/BlogPilot/SiteContext.php:100
+msgid "Blog articles for the website \"%1$s\" (%2$s)."
+msgstr "Blogové články pro web „%1$s“ (%2$s)."
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:348
+msgid "Missing the proposal to replace."
+msgstr "Chybí návrh, který se má nahradit."
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:503
+msgid "Only a draft or pending post can be written again."
+msgstr "Znovu napsat lze jen koncept nebo příspěvek čekající na schválení."
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:509
+msgid "This post was not written by Blog Pilot."
+msgstr "Tento příspěvek nenapsal Blog Pilot."
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:591
+msgid "Too many AI requests, try again in a few minutes."
+msgstr "Příliš mnoho požadavků na AI, zkuste to znovu za několik minut."
+
+#: includes/Modules/AiAssistant/ImageService.php:116
+msgid "No API key is set for the image provider. Add it in the AI Assistant settings."
+msgstr "Pro poskytovatele obrázků není nastavený klíč API. Přidejte ho v nastavení AI asistenta."
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Plan type"
+msgstr "Typ plánu"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "A fixed number of posts per day or week"
+msgstr "Pevný počet příspěvků za den nebo týden"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Spread over a date range"
+msgstr "Rozložit do rozsahu dat"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Posts per"
+msgstr "Příspěvků za"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Per day or week"
+msgstr "Za den nebo týden"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "day"
+msgstr "den"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "week"
+msgstr "týden"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Starting on"
+msgstr "Od data"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Last day"
+msgstr "Poslední den"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "The posts are spread evenly over the allowed days of this range. If the range is over, the plan carries on daily from today."
+msgstr "Příspěvky se rovnoměrně rozloží do povolených dnů tohoto rozsahu. Pokud rozsah už skončil, plán pokračuje denně od dneška."
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Leave empty to start today. Days that already hold that many scheduled posts are skipped."
+msgstr "Nechte prázdné, aby plán začal dnes. Dny, které už obsahují tolik naplánovaných příspěvků, se přeskočí."
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Window end"
+msgstr "Konec okna"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Posts are published at evenly spaced times inside this window, in the time zone of the site. Moments that are already taken by a scheduled post are avoided."
+msgstr "Příspěvky se publikují ve stejně rozložených časech uvnitř tohoto okna, v časovém pásmu webu. Okamžikům, které už zabírá jiný naplánovaný příspěvek, se plán vyhne."
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Allowed weekdays"
+msgstr "Povolené dny v týdnu"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Mon"
+msgstr "Po"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Tue"
+msgstr "Út"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Wed"
+msgstr "St"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Thu"
+msgstr "Čt"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Fri"
+msgstr "Pá"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Sat"
+msgstr "So"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Sun"
+msgstr "Ne"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Publication date and time"
+msgstr "Datum a čas zveřejnění"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Change the publication date"
+msgstr "Změnit datum zveřejnění"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Previous month"
+msgstr "Předchozí měsíc"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Next month"
+msgstr "Další měsíc"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Posts written by Blog Pilot and every scheduled post. Times are in the time zone of the site:"
+msgstr "Příspěvky napsané Blog Pilotem a každý naplánovaný příspěvek. Časy jsou v časovém pásmu webu:"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Article preview"
+msgstr "Náhled článku"
+
+#: build/459.8182a1403bf4b3b31b9a.js:4
+msgid "Published."
+msgstr "Zveřejněno."
+
+#. translators: %s: date and time
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Scheduled for %s."
+msgstr "Naplánováno na %s."
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Written again (shorter than requested)."
+msgstr "Napsáno znovu (kratší, než bylo požadováno)."
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Written again."
+msgstr "Napsáno znovu."
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Select this post"
+msgstr "Vybrat tento příspěvek"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Hide preview"
+msgstr "Skrýt náhled"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Next planned slot"
+msgstr "Další naplánovaný termín"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Publish now"
+msgstr "Zveřejnit hned"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Schedule for"
+msgstr "Naplánovat na"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Edit in WordPress"
+msgstr "Upravit ve WordPressu"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Write this article again? The current text will be replaced and AI tokens are used."
+msgstr "Napsat tento článek znovu? Současný text se nahradí a spotřebují se tokeny AI."
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Reject this article and move it to the trash?"
+msgstr "Zamítnout tento článek a přesunout ho do koše?"
+
+#: build/459.8182a1403bf4b3b31b9a.js:5
+msgid "Reject"
+msgstr "Zamítnout"
+
+#. translators: 1: number of scheduled posts, 2: number of skipped posts
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "%1$d post(s) scheduled, %2$d skipped."
+msgstr "Naplánováno příspěvků: %1$d, přeskočeno: %2$d."
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+#: build/459.8182a1403bf4b3b31b9a.js:9
+msgid "Approval"
+msgstr "Schvalování"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Articles the generators wrote as a draft or pending review wait here until you approve them."
+msgstr "Články, které generátory napsaly jako koncept nebo ke schválení, tu čekají, než je schválíte."
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Nothing to review."
+msgstr "Není co schvalovat."
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Approve selected and plan dates"
+msgstr "Schválit vybrané a naplánovat data"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Plan settings"
+msgstr "Nastavení plánu"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Move the selected posts to the trash?"
+msgstr "Přesunout vybrané příspěvky do koše?"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Reject selected"
+msgstr "Zamítnout vybrané"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "Suggest topics"
+msgstr "Navrhnout témata"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Brief"
+msgstr "Zadání"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "What the blog is about and who reads it. It starts from the name and tagline of your site; titles that already exist on the site and in this generator are excluded automatically."
+msgstr "O čem blog je a kdo ho čte. Vychází z názvu a popisku vašeho webu; názvy, které už na webu a v tomto generátoru existují, se automaticky vynechají."
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "How many topics"
+msgstr "Kolik témat"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Suggest again"
+msgstr "Navrhnout znovu"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Keyword"
+msgstr "Klíčové slovo"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Select this topic"
+msgstr "Vybrat toto téma"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Replace"
+msgstr "Nahradit"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Add to generator topics"
+msgstr "Přidat do témat generátoru"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Create posts from selected"
+msgstr "Vytvořit příspěvky z vybraných"
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Posts are written one after another with the saved settings of this generator (status, tone, length, publish plan); every post uses AI tokens."
+msgstr "Příspěvky se píšou postupně s uloženým nastavením tohoto generátoru (stav, tón, délka, plán zveřejňování); každý příspěvek spotřebuje tokeny AI."
+
+#: build/459.8182a1403bf4b3b31b9a.js:6
+msgid "Save the generator first to write posts straight from the proposals."
+msgstr "Nejdřív uložte generátor, abyste mohli psát příspěvky přímo z návrhů."
+
+#. translators: 1: posts written so far, 2: total number of posts
+#: build/459.8182a1403bf4b3b31b9a.js:7
+msgid "Writing posts… %1$d of %2$d"
+msgstr "Píšu příspěvky… %1$d z %2$d"
+
+#. translators: %s: date and time
+#: build/459.8182a1403bf4b3b31b9a.js:7
+msgid "scheduled for %s"
+msgstr "naplánováno na %s"
+
+#: build/459.8182a1403bf4b3b31b9a.js:7
+msgid "shorter than requested"
+msgstr "kratší, než bylo požadováno"
+
+#. translators: %d: number of proposals
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "%d proposal. Edit a title, untick what you do not want, or replace a topic with a new one."
+msgid_plural "%d proposals. Edit a title, untick what you do not want, or replace a topic with a new one."
+msgstr[0] "%d návrh. Upravte název, odškrtněte, co nechcete, nebo téma nahraďte novým."
+msgstr[1] "%d návrhy. Upravte název, odškrtněte, co nechcete, nebo téma nahraďte novým."
+msgstr[2] "%d návrhů. Upravte název, odškrtněte, co nechcete, nebo téma nahraďte novým."
+
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "Let the AI propose article topics that are not on your site yet."
+msgstr "Nechte AI navrhnout témata článků, která na vašem webu ještě nejsou."
+
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "Scheduled (publish plan)"
+msgstr "Naplánováno (plán zveřejňování)"
+
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "Draft keeps the article hidden until you have read it and published it yourself. Published puts it on the site at once, without a human check. Pending review waits for an editor. Scheduled sets a publication date from the publish plan below, so WordPress publishes the article by itself; you can still review it before that date."
+msgstr "Koncept drží článek skrytý, dokud si ho nepřečtete a sami ho nezveřejníte. „Zveřejněno“ ho dá na web okamžitě, bez kontroly člověkem. „Čeká na schválení“ počká na redaktora. „Naplánováno“ nastaví datum zveřejnění podle plánu níž, takže WordPress článek zveřejní sám; do toho data ho můžete ještě zkontrolovat."
+
+#: build/459.8182a1403bf4b3b31b9a.js:8
+msgid "Publish plan"
+msgstr "Plán zveřejňování"
+
+#. translators: %s: date and time
+#: build/459.8182a1403bf4b3b31b9a.js:9
+msgid "(scheduled for %s)"
+msgstr "(naplánováno na %s)"
+
+#: build/459.8182a1403bf4b3b31b9a.js:9
+msgid "Calendar"
+msgstr "Kalendář"
+
+#: build/459.8182a1403bf4b3b31b9a.js:9
+msgid "Blog Pilot view"
+msgstr "Zobrazení Blog Pilota"

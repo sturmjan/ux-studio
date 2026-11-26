@@ -1,16 +1,26 @@
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Pause, Play, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { HelpText } from '../../components/GlossaryTerm';
 import { api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
-
-interface ArticleType {
-	name: string;
-	description: string;
-	prompt_hint: string;
-}
+import { CalendarSection } from './BlogPilotCalendar';
+import { ReviewSection } from './BlogPilotReview';
+import { TopicSuggestions } from './BlogPilotTopics';
+import {
+	PlanFields,
+	QK_CALENDAR,
+	QK_GENERATORS,
+	QK_POSTS,
+	QK_STATS,
+	statusBadgeClass,
+	statusLabel,
+	withPlanDefaults,
+	type ArticleType,
+	type PublishPlan,
+	type TopicProposal,
+} from './blogPilotShared';
 
 interface ProviderInfo {
 	label: string;
@@ -25,6 +35,10 @@ interface GeneratorConfig {
 	category_id?: number;
 	author_id?: number;
 	custom_instructions?: string;
+	/** Used when post_status is "future": when the generated posts get published. */
+	publish_plan?: Partial< PublishPlan >;
+	/** Angle, keyword and article type of topics that came from the topic suggestions, by topic title. */
+	topic_meta?: Record< string, { summary?: string; keyword?: string; article_type?: string } >;
 }
 
 interface ScheduleConfig {
@@ -69,6 +83,7 @@ interface GeneratedPost {
 	created_at: string;
 	wp_title: string | null;
 	wp_status: string | null;
+	wp_date?: string | null;
 	generator_title: string | null;
 }
 
@@ -92,11 +107,9 @@ interface RunResult {
 	post_id: number;
 	title: string;
 	edit_url: string;
+	status?: string;
+	scheduled_for?: string | null;
 }
-
-const QK_GENERATORS = [ 'ai-assistant', 'blog-pilot', 'generators' ];
-const QK_POSTS = [ 'ai-assistant', 'blog-pilot', 'posts' ];
-const QK_STATS = [ 'ai-assistant', 'blog-pilot', 'stats' ];
 
 const SCHEDULE_TYPES: { id: string; label: string }[] = [
 	{ id: 'daily', label: __( 'Daily', 'ux-studio' ) },
@@ -137,6 +150,8 @@ interface GeneratorFormState {
 	postsPerRun: number;
 	timeFrom: string;
 	timeTo: string;
+	plan: PublishPlan;
+	topicMeta: Record< string, { summary?: string; keyword?: string; article_type?: string } >;
 }
 
 const EMPTY_FORM: GeneratorFormState = {
@@ -153,6 +168,8 @@ const EMPTY_FORM: GeneratorFormState = {
 	postsPerRun: 1,
 	timeFrom: '08:00',
 	timeTo: '18:00',
+	plan: withPlanDefaults( null ),
+	topicMeta: {},
 };
 
 function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone: () => void } ): JSX.Element {
@@ -181,21 +198,32 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					postsPerRun: editing.posts_per_run,
 					timeFrom: editing.schedule_config.time_from ?? '08:00',
 					timeTo: editing.schedule_config.time_to ?? '18:00',
+					plan: withPlanDefaults( editing.config.publish_plan ),
+					topicMeta: editing.config.topic_meta ?? {},
 			  }
 			: EMPTY_FORM
 	);
 
+	const topicList = () =>
+		form.topicsText
+			.split( '\n' )
+			.map( ( t ) => t.trim() )
+			.filter( Boolean );
+
 	const payload = () => ( {
 		title: form.title,
-		topics: form.topicsText.split( '\n' ).map( ( t ) => t.trim() ).filter( Boolean ),
+		topics: topicList(),
 		article_types: form.articleTypes,
 		provider: form.provider,
 		model: form.model,
+		// The server merges this into the stored config, so author, category and instructions set elsewhere survive.
 		config: {
 			tone: form.tone,
 			length: form.length,
 			language: form.language,
 			post_status: form.postStatus,
+			publish_plan: form.postStatus === 'future' ? form.plan : null,
+			topic_meta: Object.fromEntries( Object.entries( form.topicMeta ).filter( ( [ title ] ) => topicList().includes( title ) ) ),
 		},
 		schedule_type: form.scheduleType,
 		schedule_config: { time_from: form.timeFrom, time_to: form.timeTo },
@@ -222,6 +250,28 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 	const saving = create.isPending || update.isPending;
 	const canSubmit = form.title.trim() !== '' && form.topicsText.trim() !== '';
 	const error = ( create.error ?? update.error ) as Error | null;
+
+	/** Adds the proposals to the topic list (without duplicates) and remembers their angle, keyword and type. */
+	const addTopics = ( items: TopicProposal[] ) => {
+		setForm( ( f ) => {
+			const lines = f.topicsText
+				.split( '\n' )
+				.map( ( t ) => t.trim() )
+				.filter( Boolean );
+			const meta = { ...f.topicMeta };
+			for ( const item of items ) {
+				const title = item.title.trim();
+				if ( title === '' ) {
+					continue;
+				}
+				if ( ! lines.includes( title ) ) {
+					lines.push( title );
+				}
+				meta[ title ] = { summary: item.summary, keyword: item.focus_keyword, article_type: item.article_type };
+			}
+			return { ...f, topicsText: lines.join( '\n' ), topicMeta: meta };
+		} );
+	};
 
 	const toggleArticleType = ( id: string ) => {
 		setForm( ( f ) => ( {
@@ -251,6 +301,17 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					<HelpText text={ __( 'Each line is one idea for an article. The AI picks one of the lines at random each time it writes.', 'ux-studio' ) } />
 				</p>
 			</div>
+			<TopicSuggestions
+				generatorId={ editing?.id ?? null }
+				language={ form.language }
+				tone={ form.tone }
+				articleTypes={ form.articleTypes }
+				provider={ form.provider }
+				model={ form.model }
+				existingTopics={ topicList() }
+				typeNames={ articleTypes }
+				onAdd={ addTopics }
+			/>
 			<div className="uxs-form__row">
 				<label>{ __( 'Article types', 'ux-studio' ) }</label>
 				<div style={ { display: 'flex', flexWrap: 'wrap', gap: 'var(--uxs-sp-2)' } }>
@@ -328,11 +389,18 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					<option value="draft">{ __( 'Draft', 'ux-studio' ) }</option>
 					<option value="publish">{ __( 'Published', 'ux-studio' ) }</option>
 					<option value="pending">{ __( 'Pending review', 'ux-studio' ) }</option>
+					<option value="future">{ __( 'Scheduled (publish plan)', 'ux-studio' ) }</option>
 				</select>
 				<p className="uxs-form__help">
-					<HelpText text={ __( 'Draft keeps the article hidden until you have read it and published it yourself. Published puts it on the site at once, without a human check. Pending review waits for an editor.', 'ux-studio' ) } />
+					<HelpText text={ __( 'Draft keeps the article hidden until you have read it and published it yourself. Published puts it on the site at once, without a human check. Pending review waits for an editor. Scheduled sets a publication date from the publish plan below, so WordPress publishes the article by itself; you can still review it before that date.', 'ux-studio' ) } />
 				</p>
 			</div>
+			{ form.postStatus === 'future' ? (
+				<div className="uxs-bp-panel">
+					<h3>{ __( 'Publish plan', 'ux-studio' ) }</h3>
+					<PlanFields plan={ form.plan } onChange={ ( plan ) => setForm( { ...form, plan } ) } idPrefix="uxs-bp-plan" />
+				</div>
+			) : null }
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-schedule">{ __( 'Schedule', 'ux-studio' ) }</label>
 				<select id="uxs-bp-schedule" value={ form.scheduleType } onChange={ ( e ) => setForm( { ...form, scheduleType: e.target.value } ) }>
@@ -417,6 +485,7 @@ function GeneratorsSection(): JSX.Element {
 			void queryClient.invalidateQueries( { queryKey: QK_GENERATORS } );
 			void queryClient.invalidateQueries( { queryKey: QK_POSTS } );
 			void queryClient.invalidateQueries( { queryKey: QK_STATS } );
+			void queryClient.invalidateQueries( { queryKey: QK_CALENDAR } );
 		},
 		onError: ( error: Error, id ) => setRunResults( ( r ) => ( { ...r, [ id ]: error.message } ) ),
 	} );
@@ -468,6 +537,16 @@ function GeneratorsSection(): JSX.Element {
 													{ __( 'Generated:', 'ux-studio' ) } { ( runResults[ g.id ] as RunResult ).title }
 												</a>
 											) }
+											{ typeof runResults[ g.id ] !== 'string' && ( runResults[ g.id ] as RunResult ).scheduled_for ? (
+												<>
+													{ ' ' }
+													{ sprintf(
+														/* translators: %s: date and time */
+														__( '(scheduled for %s)', 'ux-studio' ),
+														( ( runResults[ g.id ] as RunResult ).scheduled_for ?? '' ).slice( 0, 16 )
+													) }
+												</>
+											) : null }
 										</div>
 									) : null }
 								</td>
@@ -528,6 +607,7 @@ function GeneratedPostsSection(): JSX.Element {
 		onSuccess: () => {
 			setSelected( [] );
 			void queryClient.invalidateQueries( { queryKey: QK_POSTS } );
+			void queryClient.invalidateQueries( { queryKey: QK_CALENDAR } );
 		},
 	} );
 
@@ -590,7 +670,9 @@ function GeneratedPostsSection(): JSX.Element {
 									</td>
 									<td>{ p.generator_title }</td>
 									<td>{ p.article_type }</td>
-									<td>{ p.wp_status }</td>
+									<td>
+										<span className={ `uxs-badge ${ statusBadgeClass( p.wp_status ) }` }>{ statusLabel( p.wp_status ) }</span>
+									</td>
 									<td>{ p.tokens_used }</td>
 									<td>{ formatDate( p.created_at ) }</td>
 								</tr>
@@ -603,18 +685,39 @@ function GeneratedPostsSection(): JSX.Element {
 	);
 }
 
+type BlogPilotView = 'generators' | 'review' | 'calendar';
+
 /**
- * Blog Pilot tab: scheduled AI article generator CRUD + generated-post
- * listing with bulk actions. Rendered inside the AI Assistant module page's
- * tab switch (see src/modules/ai-assistant/Page.tsx, wired in by the
- * orchestrator).
+ * Blog Pilot tab: scheduled AI article generators (with topic suggestions and a publish plan), the review of what they
+ * wrote and a calendar of generated and scheduled posts. Rendered inside the AI Assistant module page's tab switch
+ * (see src/modules/ai-assistant/Page.tsx).
  */
 export function BlogPilotTab(): JSX.Element {
+	const [ view, setView ] = useState< BlogPilotView >( 'generators' );
+	const views: { id: BlogPilotView; label: string }[] = [
+		{ id: 'generators', label: __( 'Generators', 'ux-studio' ) },
+		{ id: 'review', label: __( 'Approval', 'ux-studio' ) },
+		{ id: 'calendar', label: __( 'Calendar', 'ux-studio' ) },
+	];
+
 	return (
 		<>
 			<StatsPanel />
-			<GeneratorsSection />
-			<GeneratedPostsSection />
+			<div className="uxs-subtabs" role="tablist" aria-label={ __( 'Blog Pilot view', 'ux-studio' ) }>
+				{ views.map( ( v ) => (
+					<button key={ v.id } type="button" role="tab" aria-selected={ view === v.id } className={ view === v.id ? 'is-active' : '' } onClick={ () => setView( v.id ) }>
+						{ v.label }
+					</button>
+				) ) }
+			</div>
+			{ view === 'generators' ? (
+				<>
+					<GeneratorsSection />
+					<GeneratedPostsSection />
+				</>
+			) : null }
+			{ view === 'review' ? <ReviewSection /> : null }
+			{ view === 'calendar' ? <CalendarSection /> : null }
 		</>
 	);
 }
