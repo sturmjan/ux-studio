@@ -142,6 +142,14 @@ final class InternalChatRestController extends Controller {
 						ob_flush();
 					}
 					flush();
+				},
+				function ( array $images ) {
+					// Display data of the attachments the image tool created (see ImageService::describe()).
+					echo 'data: ' . wp_json_encode( array( 'images' => $images ) ) . "\n\n";
+					if ( ob_get_level() ) {
+						ob_flush();
+					}
+					flush();
 				}
 			);
 
@@ -242,7 +250,7 @@ final class InternalChatRestController extends Controller {
 			if ( ! $row ) {
 				return null;
 			}
-			$row['messages'] = json_decode( (string) $row['messages'], true ) ?: array();
+			$row['messages'] = ImageService::expand_message_images( json_decode( (string) $row['messages'], true ) ?: array() );
 			return $row;
 		}
 
