@@ -198,6 +198,19 @@ final class InternalChatEngine {
 							)
 						);
 					} catch ( \RuntimeException $e ) {
+						// Logged like the Content tab does, otherwise the admin never learns why chat images fail
+						// (e.g. an invalid image key) - the model only paraphrases the error to the user.
+						ErrorLogger::log(
+							array(
+								'error_type'    => ErrorLogger::TYPE_PROVIDER,
+								'error_message' => $e->getMessage(),
+								'context'       => array(
+									'scope'   => 'image',
+									'origin'  => 'internal chat generate_image',
+									'user_id' => get_current_user_id(),
+								),
+							)
+						);
 						$content = wp_json_encode( array( 'success' => false, 'error' => $e->getMessage() ) );
 					}
 				}

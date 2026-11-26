@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.21.0 - 2026-11-26
 
+- Fixed: AI Assistant - a product re-vectorization queue whose next batch was lost (two overlapping WP-Cron runs) now resumes by itself in the next admin or cron request instead of staying stuck.
+- Changed: AI Assistant - when an image requested in the internal chat cannot be created (e.g. an invalid image key), the error is now written to the AI error log, like in the Content tab.
 - Added: AI Assistant - new "Inquiries" tab: the contact messages and callback requests collected by the chat widget (until now only e-mailed and stored) can be browsed with date, type, name, e-mail, phone, message and page, filtered by type and status, marked as handled or new, deleted (also in bulk) and opened together with the related conversation. A badge on the tab counts the new inquiries.
 - Fixed: AI Assistant - the product index (used by chat product search and RAG) stored attributes and categories as JSON with escaped characters (`sta u nás. Vyberete si ještě dnes!`) and that raw JSON was also embedded for vector search, which hurt matching of Czech words. Product text is now plain and readable. After the update the products are re-indexed and their vectors re-computed once in the background (batched, once per site); until then search keeps working on the old data.
 - Fixed: AI Assistant - a chat session can no longer have two conversation rows: `session_id` is now a UNIQUE key (database upgrade 2). Duplicate rows that already exist are merged first - the oldest row keeps all messages in time order and the most advanced operator handoff state, the extra rows are removed.

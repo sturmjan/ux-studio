@@ -46,6 +46,7 @@ function get_current_user_id() { return $GLOBALS['uxs']['user']; }
 function current_user_can( $cap ) { return ! empty( $GLOBALS['uxs']['caps'][ $cap ] ); }
 function wp_strip_all_tags( $text ) { return trim( strip_tags( (string) $text ) ); }
 function wp_json_encode( $data ) { return json_encode( $data ); }
+function current_time( $type ) { return gmdate( 'Y-m-d H:i:s' ); }
 function sanitize_title( $title ) { return trim( preg_replace( '/[^a-z0-9]+/', '-', strtolower( (string) $title ) ), '-' ); }
 function admin_url( $path = '' ) { return 'https://site.test/wp-admin/' . $path; }
 function is_wp_error( $thing ) { return false; }
