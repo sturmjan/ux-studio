@@ -4751,3 +4751,118 @@ Modul `dashboard-widgets` měl tři záložky o jedné věci (Skrytí widgetů, 
   - Výchozí hodnoty ve schématu (`default` u `widget_*`) zůstaly původní (vypnuto, u modulů zapnuto), aby se web bez uložených hodnot po aktualizaci nezměnil.
 - **Pozn.:** widget `uxstudio_service_requests_widget` (Požadavky na služby) v kódu modulu Service Requests nikdo nezaregistruje, přepínač tedy zatím nic neovládá. Tabulka ho vede, náhled řekne „není zaregistrovaný“.
 - **Testy:** `tests/dashboard-widgets-unified.php` (čistý PHP: výchozí stav, opožděné výchozí skrytí, katalog, typy, stavy, přepínače), `tests/dashboard-widget-rules.php` (beze změny), `tests/dashboard-widget-rules-wp.php` (WordPress strana).
+
+## 45. Sdílené AI jádro pro UX1 Studio a UX1 Network app (CA) (2026-11-26, NÁVRH)
+
+Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat s vlastním RAG (stejná funkce jako AI asistent v UX1 Studiu), vloží ho na svůj web, a vývoj jádra běží na jednom místě, ne ve dvou větvích.
+
+### 45.1 Výchozí stav (ověřeno 2026-11-26)
+
+**Test základu v prohlížeči (Edge, lokální pobyty, přes Claude Code Bridge).** Funguje: widget, odpovědi z RAG (produkty, ruční znalosti), karty produktů, FAQ, předání na operátora (celý kruh), interní chat, Tvorba obsahu, Blog Pilot, callback a kontaktní formulář, nastavení widgetu. Opraveno (větev `feature/ai-chat-bridge-provider`): widget nečetl obálku `{data, meta}` (prázdné karty a FAQ, chyba je i v main 0.20.0), prázdný select modelu u zastaralého uloženého modelu, bridge bez odhadu tokenů (limity a statistika se u něj nepočítaly). Neověřeno: streamování na skutečném API, fallback mezi providery, reálné odeslání e-mailu.
+
+**Co už je sdílené a co ne.**
+
+| Oblast | UX1 Studio (WP plugin) | CA |
+|---|---|---|
+| Provider kontrakt | `AiProviderInterface` (generate, stream, tools, test), Claude/OpenAI/DeepSeek + bridge | `AbstractAiProvider` (jen `chat()`, bez streamu a embeddingů), 6 providerů včetně `claude_code` |
+| RAG | chunking, embeddingy (OpenAI nebo tf-idf fallback), vektory v JSON, cosine v PHP, hybrid s FULLTEXT | žádný (ani vektory, ani znalostní báze) |
+| Tenant | žádný `site_id`, oddělení dělá WP prefix tabulek | žádná entita "uživatel vlastní web"; jsou `sites`, `site_users`, `user_groups` |
+| Klíče a peníze | jeden klíč na web | BYOK (`user_api_keys`), kredity (`user_credits`), `ai_usage_log` |
+| Veřejný widget | vanilla JS, `same-origin`, nonce, žádné CORS | žádný veřejný widget, CORS jen u LegalDocs; HMAC a Bearer vzory pro server-to-server |
+| Streaming | SSE (ručně v controlleru) | žádný (`ai-chat.js` čeká na celý JSON) |
+
+### 45.2 Rozhodnutí o architektuře
+
+1. **Jádro je samostatná knihovna `ux1-ai-core`** (privátní repo `sturmjan/ux1-ai-core`, namespace `Ux1\AiCore`, čisté PHP bez volání WordPressu a bez frameworku). Plugin ji vendoruje do `vendor/`, CA do `lib/` (CA nemá Composer). Synchronizace skriptem `bin/sync-core` z tagované verze, aby se nikdy neupravovala kopie ve vendoru. Důvod proti monorepu: oba produkty mají jiný release cyklus (plugin: podepsané ZIPy, CA: nasazení na Hostinger).
+2. **Hostitel dodává "porty" (rozhraní), jádro dodává logiku.** WP a CA mají jen tenké adaptéry.
+3. **Tenant se jmenuje `bot_id`.** V jádru je každá tabulka a každý index označen `bot_id`. Plugin používá konstantu `bot_id = 0` (jeden bot na web, chování beze změny), CA má jeden `bot_id` na chat uživatele.
+4. **Jeden schéma-soubor** (SQL pro MySQL/MariaDB) v jádru. WP ho spouští přes `dbDelta`, CA přes `Migrator` (migrace 129 a dál; 120-127 jsou v číslování volné, nepoužívat).
+5. **Widget je jeden JS bundle v jádru.** Konfigurace z globální proměnné nebo `data-` atributů. Dva režimy: `same-origin` (WP, jako dnes) a `cross-origin` (CA: bez cookies, veřejný klíč bota, povolené domény).
+6. **Rozhraní odpovědí je jedno** (obálka `{data, meta}` nebo holé JSON, rozhodnout jednou) a widget přijímá obě varianty, ať se chyba z 45.1 neopakuje.
+
+### 45.3 Porty (co dodá hostitel)
+
+| Port | WP adaptér | CA adaptér |
+|---|---|---|
+| `HttpClient` (+ streamování) | `wp_remote_*` / cURL | `GuardedHttp` / cURL (stream přes `CURLOPT_WRITEFUNCTION`) |
+| `SettingsStore`, `SecretStore` | `Settings`, `Security::get_secret` | `ai_bots` + `AiKeyResolver` (BYOK, kredity) |
+| `ConversationRepo`, `KnowledgeRepo`, `FaqRepo`, `VectorStore`, `UsageRepo`, `InquiryRepo` | `$wpdb` | PDO |
+| `RateLimiter`, `Cache` | transienty | tabulka nebo APCu, vzor `PublicMailGuard` |
+| `Mailer` | `wp_mail` | CA mailer |
+| `Translator` | `__()` | CA překlady (jádro používá klíče, ne texty) |
+| `SourceProvider` | příspěvky, WooCommerce, dokumenty, URL | nahrané dokumenty, URL, sitemapa, ruční text |
+| `JobRunner` | WP-Cron | `CronController::tick`, těžké úlohy na NAS |
+| `Operators` (handoff) | WP uživatelé | uživatelé CA |
+
+### 45.4 Co se přesune do jádra a co zůstane
+
+- **Do jádra (čisté):** providery Claude/OpenAI/DeepSeek/Claude Code Bridge, `ChunkingEngine`, embeddingy (OpenAI + fallback), `VectorSearch`, `PromptBuilder` (bez statických `class_exists`), `ChatEngine`, `UsageLimiter` (logika), parsování dokumentů, generický registr nástrojů, widget JS a CSS.
+- **Zůstane v pluginu:** indexery WooCommerce a příspěvků a jejich háčky (`save_post`), Blog Pilot, SEO, MCP, HtmlToElementor, nástroje editoru.
+- **Zůstane v CA:** redakční nástroje `AiTools` (články, rubriky, fotky), `AiContext` a `ai-chat.js` pro interního asistenta. Později je lze nasadit na stejné jádro (F6).
+
+### 45.5 Chyby a slabiny, které se mají opravit při přesunu (ne přenést)
+
+- tf-idf fallback: dotaz má IDF = 1, dokumenty IDF z dávky, vektory jsou nekonzistentní.
+- Vektory různých embedding modelů jsou v jedné tabulce a hledání nefiltruje podle `embedding_model`.
+- Vektory jako JSON text, cosine přes celou tabulku v PHP (O(N) na dotaz). Pro CA ukládat binárně (`pack`) a omezit počet kandidátů předvýběrem přes FULLTEXT. Odhad: do desítek tisíc chunků na bota je to použitelné, měřit.
+- Dva chunkery (800 a 1500 znaků), sjednotit.
+- Poptávky z kontaktu a callbacku jsou jen v DB a v e-mailu, admin je nevypíše (hrozí ztráta leadů).
+- Karta produktu se po odpovědi stahuje dvakrát (zobrazení a uložení do historie).
+- Polling handoffu nemá timeout (jednou se při přetíženém serveru nepřijala zpráva operátora, neopakovatelné).
+- Streamování je v WP ručně (`header`, `flush`, `exit`) uvnitř controlleru, oddělit do emitteru.
+
+### 45.6 Fáze
+
+**F0 Dohoda a ochranná síť**
+- [ ] Potvrdit rozhodnutí z 45.2 (repo, jmenný prostor, `bot_id`, minimální verze PHP; CA používá 8.2+, ověřit minimum pluginu).
+- [ ] Charakterizační testy dnešního chování (chat, RAG, handoff, limity) v `tests/`.
+- [ ] Uložit Edge smoke test (widget, karty, FAQ, handoff) do `tests/e2e/` jako opakovatelný skript bez tajemství.
+
+**F1 Čistá část jádra**
+- [ ] Založit repo `ux1-ai-core`, autoloader bez Composeru, CI s PHPUnit.
+- [ ] Přesunout providery (se streamem, embedem a odhadem tokenů) za rozhraní `HttpClient`.
+- [ ] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker).
+- [ ] Plugin přepnout na jádro, chování beze změny, testy zelené.
+
+**F2 Úložiště a tenant**
+- [ ] Rozhraní repozitářů a jeden schéma-soubor s `bot_id`.
+- [ ] `WpdbStorage` v pluginu, migrace stávajících tabulek (`bot_id = 0`) bez ztráty dat.
+- [ ] `ChatEngine`, `PromptBuilder`, `UsageLimiter` jen přes porty.
+
+**F3 Transport a widget**
+- [ ] `ChatService` vrací události, SSE emitter odděleně, tenké REST controllery v pluginu.
+- [ ] Widget jako bundle jádra, konfigurace přes `data-` atributy a globální objekt, přijímá obě varianty obálky.
+- [ ] Režim `cross-origin`: bez cookies, klíč bota, kontrola `Origin`, volitelně Turnstile, CORS s `Vary: Origin`.
+
+**F4 Adaptér CA (MVP)**
+- [ ] Migrace 129+: `ai_bots` (`user_id`, název, veřejný klíč, povolené domény, nastavení), tabulky jádra s `bot_id`.
+- [ ] `PdoStorage`, `KeyResolver` (BYOK, kredity, `ai_usage_log`), `CronController` pro indexaci.
+- [ ] Veřejný endpoint `?page=chat_api` (CORS, klíč bota, rate limit, Turnstile) a zápis do `ai_usage_log`.
+- [ ] Administrace bota ve stylu CA (shadcn): znalosti (text, URL, sitemapa, dokumenty), vzhled, domény, vložení (snippet), konverzace, poptávky.
+- [ ] Dokumenty do `storage/` mimo veřejný kořen, limity velikosti a typu, ochrana proti SSRF při crawlu (`GuardedHttp`).
+
+**F5 Provoz a bezpečnost**
+- [ ] Testy izolace tenantů (bot A nikdy nevidí data bota B, včetně vektorů a konverzací).
+- [ ] Ochrana proti prompt injection z crawlovaného obsahu, limity nákladů na bota, alerty.
+- [ ] GDPR: CA je zpracovatel konverzací návštěvníků klientů; retence, smazání, DPA text. Probrat s generátorem VOP/GDPR v CA.
+- [ ] `/security-review` před nasazením.
+- [ ] Měření výkonu vektorového hledání, rozhodnutí o prahu pro externí vektorové úložiště.
+
+**F6 Rozšíření (později)**
+- [ ] Handoff na operátora pro boty v CA.
+- [ ] Interní AI chat CA převést na jádro.
+- [ ] Sdílení znalostí mezi boty, šablony botů pro obor.
+
+### 45.7 Rizika
+
+- Hostinger: omezení `max_execution_time`, přepsání CSP u odpovědí CA. Indexace proto po dávkách přes cron, nikoli v requestu.
+- Vendorovaná kopie jádra se rozejde, pokud se upraví přímo ve vendoru. Hlídat CI kontrolou kontrolního součtu.
+- Náklady na tokeny u cizích botů: bez kreditů nebo BYOK nepustit.
+- Widget na cizím webu: CSP klienta může blokovat spojení, v dokumentaci uvést potřebné `connect-src` a `script-src`.
+
+### 45.8 Otevřená rozhodnutí (čeká na majitele)
+
+1. Repo jádra: samostatné privátní `ux1-ai-core` (doporučeno) nebo složka v jednom z projektů?
+2. Peníze u botů v CA: vlastní klíč uživatele (BYOK), kredity z centrálního klíče, nebo obojí jako dnes u generování obsahu?
+3. Má MVP botů v CA obsahovat předání na operátora, nebo až F6?
+4. Veřejná adresa a značka vkládacího skriptu (`ux1.cz`, `app.ux1.cz`, vlastní doména).
