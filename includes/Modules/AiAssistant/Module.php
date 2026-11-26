@@ -505,7 +505,7 @@ final class Module extends BaseModule {
 				'key'     => 'claude_code_workdir',
 				'type'    => 'text',
 				'label'   => __( 'Claude Code Bridge working directory', 'ux-studio' ),
-				'help'    => __( 'Must be on the bridge whitelist.', 'ux-studio' ),
+				'help'    => __( 'Must be on the bridge allowlist.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
