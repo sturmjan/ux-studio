@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, LoaderCircle, Sparkles, Upload } from 'lucide-react';
 import { HelpText } from '../../components/GlossaryTerm';
 import { api } from '../../app/api';
+import { ImageSection } from './ImageSection';
 
 interface UsageInfo {
 	input_tokens: number;
@@ -715,6 +716,7 @@ export function ContentCreatorTab(): JSX.Element {
 			<SeoGeneratorSection />
 			<BulkSeoSection />
 			<SocialCaptionSection />
+			<ImageSection />
 			<ElementorImportSection />
 		</>
 	);

@@ -8,7 +8,9 @@
 
 namespace UxStudio\Modules\AiAssistant;
 
+use Ux1\AiCore\Image\ImageTool;
 use UxStudio\Core\Settings;
+use UxStudio\Modules\AiAssistant\Providers\AiProviderInterface;
 use UxStudio\Modules\AiAssistant\Rag\VectorSearch;
 use UxStudio\Modules\AiAssistant\Rag\VectorStore;
 use UxStudio\Modules\Guide\Module as GuideModule;
@@ -41,6 +43,9 @@ final class InternalChatEngine {
 	private const MAX_STORED_MESSAGES = 200;
 	private const MAX_MESSAGE_CHARS   = 20000;
 
+	/** Tool-calling round trips of one image-enabled chat turn (the image tool, then the final answer). */
+	private const MAX_TOOL_ROUNDS = 4;
+
 	private static ?Settings $settings = null;
 
 	private static function settings(): Settings {
@@ -57,9 +62,10 @@ final class InternalChatEngine {
 	 * @param array<int, array{role:string,content:string}> $messages        Full message list, latest user message already appended by the caller.
 	 * @param int                                            $conversation_id Existing chat_history row id to update, or 0 for a new one.
 	 * @param callable                                       $on_chunk        function( string $text ): void - called for each streamed text fragment.
-	 * @return array{response:string,conversation_id:int}
+	 * @param callable|null                                  $on_images       function( array $images ): void - called with the display data of images created in this turn (image tool only).
+	 * @return array{response:string,conversation_id:int,images:array}
 	 */
-	public function process_message( array $messages, int $conversation_id, callable $on_chunk ): array {
+	public function process_message( array $messages, int $conversation_id, callable $on_chunk, ?callable $on_images = null ): array {
 		$user_id = get_current_user_id();
 
 		// Optional provider/model override for the internal chatbot (legacy chatbot_provider/chatbot_model).
@@ -80,31 +86,49 @@ final class InternalChatEngine {
 
 		$chat_messages = array_slice( $this->normalize_messages( $messages ), -self::MAX_HISTORY_MESSAGES );
 
-		$full_response = '';
-		$provider->stream_chat(
-			$chat_messages,
-			$model,
-			function ( string $chunk ) use ( &$full_response, $on_chunk ) {
-				$full_response .= $chunk;
-				$on_chunk( $chunk );
-			},
-			array(
-				'system'      => $system_prompt,
-				'max_tokens'  => 4096,
-				'temperature' => 0.7,
-			)
-		);
+		$image_tools = ImageService::chat_tools( $provider_id );
+		$image_ids   = array();
 
-		$usage = $provider->get_last_stream_usage();
-		if ( $usage['input_tokens'] > 0 || $usage['output_tokens'] > 0 ) {
-			UsageTracker::log( $provider_id, $model, 'internal_chat', $usage['input_tokens'], $usage['output_tokens'] );
+		if ( ! empty( $image_tools ) ) {
+			// Image generation is on and the provider can call tools: a non-streaming tool loop (like the public
+			// widget's MCP mode); the whole reply arrives as one chunk.
+			$system_prompt .= $this->build_image_instructions();
+			$full_response  = $this->run_image_tool_turn( $provider, $provider_id, $model, $chat_messages, $system_prompt, $image_tools, $image_ids );
+			$on_chunk( $full_response );
+			if ( ! empty( $image_ids ) && null !== $on_images ) {
+				$on_images( $this->describe_images( $image_ids ) );
+			}
+		} else {
+			$full_response = '';
+			$provider->stream_chat(
+				$chat_messages,
+				$model,
+				function ( string $chunk ) use ( &$full_response, $on_chunk ) {
+					$full_response .= $chunk;
+					$on_chunk( $chunk );
+				},
+				array(
+					'system'      => $system_prompt,
+					'max_tokens'  => 4096,
+					'temperature' => 0.7,
+				)
+			);
+
+			$usage = $provider->get_last_stream_usage();
+			if ( $usage['input_tokens'] > 0 || $usage['output_tokens'] > 0 ) {
+				UsageTracker::log( $provider_id, $model, 'internal_chat', $usage['input_tokens'], $usage['output_tokens'] );
+			}
 		}
 
-		$history_messages   = $this->normalize_messages( $messages );
-		$history_messages[] = array(
+		$history_messages  = $this->normalize_messages( $messages, true );
+		$assistant_message = array(
 			'role'    => 'assistant',
 			'content' => $full_response,
 		);
+		if ( ! empty( $image_ids ) ) {
+			$assistant_message['images'] = $image_ids;
+		}
+		$history_messages[] = $assistant_message;
 
 		$saved_id = ( new ChatHistory() )->save(
 			$user_id,
@@ -117,7 +141,108 @@ final class InternalChatEngine {
 		return array(
 			'response'        => $full_response,
 			'conversation_id' => $saved_id,
+			'images'          => $this->describe_images( $image_ids ),
 		);
+	}
+
+	/**
+	 * Tool-calling loop with the shared "generate_image" tool. The model never sees (or returns) an image URL: the tool
+	 * result only confirms success, and the images are shown from the attachment ids collected here.
+	 *
+	 * @param array<int, array{role:string,content:string}> $chat_messages Trimmed history.
+	 * @param array<int, array<string, mixed>>               $tools         Tool definitions offered (only generate_image).
+	 * @param int[]                                          $image_ids     Out: ids of the attachments created in this turn.
+	 */
+	private function run_image_tool_turn( AiProviderInterface $provider, string $provider_id, string $model, array $chat_messages, string $system_prompt, array $tools, array &$image_ids ): string {
+		$messages     = $chat_messages;
+		$total_input  = 0;
+		$total_output = 0;
+		$text         = '';
+		$service      = null;
+
+		for ( $round = 0; $round < self::MAX_TOOL_ROUNDS; $round++ ) {
+			$result = $provider->chat_with_tools(
+				$messages,
+				$model,
+				$tools,
+				array(
+					'system'     => $system_prompt,
+					'max_tokens' => 4096,
+				)
+			);
+
+			$total_input  += (int) $result['input_tokens'];
+			$total_output += (int) $result['output_tokens'];
+
+			if ( empty( $result['tool_calls'] ) ) {
+				$text = (string) ( $result['content'] ?? '' );
+				break;
+			}
+
+			$messages[]   = $result['assistant_message'];
+			$tool_results = array();
+			foreach ( $result['tool_calls'] as $tool_call ) {
+				if ( ImageTool::NAME !== $tool_call['name'] ) {
+					$content = wp_json_encode( array( 'success' => false, 'error' => 'Unknown tool.' ) );
+				} elseif ( count( $image_ids ) >= ImageService::MAX_CHAT_IMAGES_PER_TURN ) {
+					$content = wp_json_encode( array( 'success' => false, 'error' => 'Image limit for this reply reached. Do not generate more images now.' ) );
+				} else {
+					try {
+						$service     = $service ?? new ImageService();
+						$image       = $service->generate_for_chat( (array) $tool_call['arguments'] );
+						$image_ids[] = (int) $image['attachment_id'];
+						$content     = wp_json_encode(
+							array(
+								'success' => true,
+								'message' => 'The image was created and is shown to the user below your reply. Do not write its URL or markdown for it; just say briefly what you made.',
+							)
+						);
+					} catch ( \RuntimeException $e ) {
+						$content = wp_json_encode( array( 'success' => false, 'error' => $e->getMessage() ) );
+					}
+				}
+				$tool_results[] = array(
+					'tool_call_id' => $tool_call['id'],
+					'content'      => (string) $content,
+				);
+			}
+			foreach ( $provider->format_tool_results( $tool_results ) as $formatted_message ) {
+				$messages[] = $formatted_message;
+			}
+		}
+
+		if ( $total_input > 0 || $total_output > 0 ) {
+			UsageTracker::log( $provider_id, $model, 'internal_chat', $total_input, $total_output );
+		}
+
+		if ( '' === $text ) {
+			$text = empty( $image_ids ) ? __( 'Sorry, I was unable to process that request.', 'ux-studio' ) : __( 'Here is the image.', 'ux-studio' );
+		}
+
+		return $text;
+	}
+
+	private function build_image_instructions(): string {
+		return "\n\nYou can create images with the generate_image tool, but only when the user explicitly asks for an image. "
+			. "Each image costs money: never generate one on your own initiative, and ask a short clarifying question first when the request is vague. "
+			. "The created image is shown to the user automatically.\n";
+	}
+
+	/**
+	 * Display data of the generated attachments (ids that are not generated images are dropped).
+	 *
+	 * @param int[] $ids Attachment ids.
+	 * @return array<int, array{id:int,url:string,alt:string,edit_url:string}>
+	 */
+	private function describe_images( array $ids ): array {
+		$described = array();
+		foreach ( $ids as $id ) {
+			$data = ImageService::describe( (int) $id );
+			if ( null !== $data ) {
+				$described[] = $data;
+			}
+		}
+		return $described;
 	}
 
 	/**
@@ -131,7 +256,11 @@ final class InternalChatEngine {
 	 * @return array{id:int,title:string,messages:array,provider:string,model:string}|null
 	 */
 	public function get_history_item( int $conversation_id, int $user_id ): ?array {
-		return ( new ChatHistory() )->get( $conversation_id, $user_id );
+		$item = ( new ChatHistory() )->get( $conversation_id, $user_id );
+		if ( null !== $item && ! empty( $item['messages'] ) ) {
+			$item['messages'] = ImageService::expand_message_images( (array) $item['messages'] );
+		}
+		return $item;
 	}
 
 	public function delete_history_item( int $conversation_id, int $user_id ): bool {
@@ -302,18 +431,27 @@ final class InternalChatEngine {
 	 * provider or persisting to history.
 	 *
 	 * @param array<int, mixed> $messages Raw message list.
-	 * @return array<int, array{role:string,content:string}>
+	 * @param bool              $keep_images Keep the validated image ids of assistant turns (storage, not the provider).
+	 * @return array<int, array{role:string,content:string,images?:int[]}>
 	 */
-	private function normalize_messages( array $messages ): array {
+	private function normalize_messages( array $messages, bool $keep_images = false ): array {
 		$clean = array();
 		foreach ( $messages as $message ) {
 			$role    = is_array( $message ) ? ( $message['role'] ?? '' ) : '';
 			$content = is_array( $message ) ? ( $message['content'] ?? '' ) : '';
 			if ( in_array( $role, array( 'user', 'assistant' ), true ) && is_string( $content ) && '' !== $content ) {
-				$clean[] = array(
+				$entry = array(
 					'role'    => $role,
 					'content' => mb_substr( $content, 0, self::MAX_MESSAGE_CHARS ),
 				);
+				// For storage only (never sent to the provider): images the chat tool created for this user.
+				if ( $keep_images && 'assistant' === $role ) {
+					$images = ImageService::owned_ids( $message['images'] ?? null, get_current_user_id() );
+					if ( ! empty( $images ) ) {
+						$entry['images'] = $images;
+					}
+				}
+				$clean[] = $entry;
 			}
 		}
 		return array_slice( $clean, -self::MAX_STORED_MESSAGES );

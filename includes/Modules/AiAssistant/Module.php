@@ -28,6 +28,8 @@ final class Module extends BaseModule {
 	private const SECRET_OPENAI   = 'uxstudio_secret_ai_assistant_openai_api_key';
 	private const SECRET_DEEPSEEK = 'uxstudio_secret_ai_assistant_deepseek_api_key';
 	private const SECRET_CLAUDE_CODE = 'uxstudio_secret_ai_assistant_claude_code_api_key';
+	private const SECRET_IMAGE_GEMINI = 'uxstudio_secret_ai_assistant_image_gemini_api_key';
+	private const SECRET_IMAGE_OPENAI = 'uxstudio_secret_ai_assistant_image_openai_api_key';
 
 	/**
 	 * provider id => secret option name.
@@ -39,6 +41,9 @@ final class Module extends BaseModule {
 		'openai'      => self::SECRET_OPENAI,
 		'deepseek'    => self::SECRET_DEEPSEEK,
 		'claude_code' => self::SECRET_CLAUDE_CODE,
+		// Image providers (the settings fields are image_gemini_api_key / image_openai_api_key).
+		'image_gemini' => self::SECRET_IMAGE_GEMINI,
+		'image_openai' => self::SECRET_IMAGE_OPENAI,
 	);
 
 	/** Daily purge of the usage/error log and internal chat history (see Core\Retention). */
@@ -509,6 +514,39 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 			array(
+				'key'     => 'image_provider',
+				'type'    => 'select',
+				'label'   => __( 'Image provider', 'ux-studio' ),
+				'help'    => __( 'Used by the Image card in Content Creator and, when allowed, by the internal chat. Gemini has a free preview tier; OpenAI is always paid.', 'ux-studio' ),
+				'options' => array(
+					'gemini' => 'Google Gemini (Nano Banana)',
+					'openai' => 'OpenAI (gpt-image)',
+				),
+				'default' => 'gemini',
+			),
+			array(
+				'key'     => 'image_gemini_api_key',
+				'type'    => 'text',
+				'label'   => __( 'Gemini image API key', 'ux-studio' ),
+				'help'    => __( 'Google AI Studio key for image generation. Stored encrypted. Leave blank to keep the current key.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'image_openai_api_key',
+				'type'    => 'text',
+				'label'   => __( 'OpenAI image API key', 'ux-studio' ),
+				'help'    => __( 'OpenAI key for image generation (separate from the chat key above). Stored encrypted. Leave blank to keep the current key.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'image_openai_model',
+				'type'    => 'select',
+				'label'   => __( 'OpenAI image model', 'ux-studio' ),
+				'help'    => __( 'Only used when the image provider is OpenAI. The cheapest model is GPT Image 1 Mini.', 'ux-studio' ),
+				'options' => self::models_with_current( ImageService::openai_models(), 'image_openai_model' ),
+				'default' => 'gpt-image-1',
+			),
+			array(
 				'key'     => 'monthly_token_limit',
 				'type'    => 'number',
 				'label'   => __( 'Monthly token limit', 'ux-studio' ),
@@ -746,6 +784,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'Internal chatbot system prompt', 'ux-studio' ),
 				'help'    => __( 'Appended to the default prompt of the internal chatbot.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'chat_images_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Allow images in chat', 'ux-studio' ),
+				'help'    => __( 'The internal chat may generate an image when the user asks for one. Every image costs money (up to about 0.13 USD each) and counts toward the daily request limit. Needs an image API key above and a chat provider with tool support; with the Claude Code Bridge this setting has no effect. Off by default. Never applies to the public visitor widget.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'internal_rag_enabled',
