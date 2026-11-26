@@ -448,6 +448,12 @@
     var handoffAssignedTo = null;
     var pendingHandoffSystemMessage = false;
     var isHandoffPolling = false; // race-condition guard
+    // Bumped whenever polling is stopped or the handoff state is changed locally. A poll remembers the value it was
+    // sent with and drops its response if it no longer matches - otherwise a slow response that arrives after the
+    // timeout / cancel / new chat would resurrect the "waiting for an operator" banner.
+    var handoffEpoch = 0;
+    var handoffPollAbort = null; // AbortController of the poll in flight
+    var HANDOFF_POLL_TIMEOUT_MS = 20000; // a hung poll must not hold isHandoffPolling forever
     var renderedMessageKeys = {}; // idempotentní render
     var handoffTimeoutTimer = null; // timer pro fallback po X sekundách nečinnosti operátora
 
@@ -480,19 +486,21 @@
         });
     }
 
-    function apiPost(endpoint, data) {
-        return fetch(restUrl + endpoint, {
+    function apiPost(endpoint, data, signal) {
+        var init = {
             method: 'POST',
             headers: apiHeaders(true),
             credentials: 'same-origin',
             body: JSON.stringify(data)
-        });
+        };
+        if (signal) init.signal = signal;
+        return fetch(restUrl + endpoint, init);
     }
 
     // POST + parsování JSON. Pro endpointy, kde nechceme citlivá data (session_id)
     // posílat v query stringu (končí v access logách / Referer / historii).
-    function apiPostJson(endpoint, data) {
-        return apiPost(endpoint, data).then(function(r) {
+    function apiPostJson(endpoint, data, signal) {
+        return apiPost(endpoint, data, signal).then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
         });
@@ -1037,9 +1045,19 @@
 
     function cancelHandoff() {
         clearHandoffTimeoutTimer();
+        // Stop polling right away so no poll sent before the cancel can report "requested" afterwards.
+        stopHandoffPolling();
         apiPost('/handoff/cancel', { session_id: sessionId })
             .then(function(r) { return r.json(); })
             .then(function(data) {
+                if (data.cancelled === false && (data.status === 'requested' || data.status === 'human')) {
+                    // The server did not cancel (an operator took over meanwhile) - keep following the real state.
+                    handoffStatus = data.status;
+                    updateOperatorButtonVisibility();
+                    showHandoffBanner();
+                    startHandoffPolling();
+                    return;
+                }
                 handoffStatus = data.status || 'ai';
                 updateOperatorButtonVisibility();
                 hideHandoffBanner();
@@ -1049,7 +1067,13 @@
                 messages.push({ role: 'bot', text: cancelledText });
                 saveMessages(messages);
             })
-            .catch(function() {});
+            .catch(function() {
+                // Cancel did not reach the server: the request is still pending, so keep waiting for it.
+                if (handoffStatus === 'requested') {
+                    startHandoffPolling();
+                    startHandoffTimeoutTimer();
+                }
+            });
     }
 
     function sendHandoffMessage(text) {
@@ -1093,6 +1117,13 @@
             clearInterval(handoffPollTimer);
             handoffPollTimer = null;
         }
+        // Invalidate the poll in flight (its response will be ignored) and free the guard for the next cycle.
+        handoffEpoch++;
+        if (handoffPollAbort) {
+            try { handoffPollAbort.abort(); } catch (e) { /* ignore */ }
+            handoffPollAbort = null;
+        }
+        isHandoffPolling = false;
     }
 
     function startHandoffTimeoutTimer(remainingSeconds) {
@@ -1125,7 +1156,6 @@
         handoffSince = 0;
         handoffAssignedTo = null;
         pendingHandoffSystemMessage = false;
-        isHandoffPolling = false;
 
         clearInactivityTimer();
         exchangeCount = 0;
@@ -1219,9 +1249,17 @@
     function pollHandoff() {
         if (isHandoffPolling) return; // race-condition guard
         isHandoffPolling = true;
-        apiPostJson('/handoff/poll', { session_id: sessionId, since: handoffSince })
+        var epoch = handoffEpoch;
+        var pollSession = sessionId;
+        var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        handoffPollAbort = ctrl;
+        var abortTimer = ctrl ? setTimeout(function() { ctrl.abort(); }, HANDOFF_POLL_TIMEOUT_MS) : null;
+        // True when polling was stopped / the state changed locally / a new chat started since this poll was sent.
+        function isStale() { return epoch !== handoffEpoch || pollSession !== sessionId; }
+
+        apiPostJson('/handoff/poll', { session_id: pollSession, since: handoffSince }, ctrl ? ctrl.signal : undefined)
             .then(function(data) {
-                if (!data) return;
+                if (!data || isStale()) return;
 
                 var prevStatus = handoffStatus;
                 handoffStatus = data.handoff_status || 'ai';
@@ -1257,7 +1295,13 @@
                 }
             })
             .catch(function() { /* ignore */ })
-            .then(function() { isHandoffPolling = false; });
+            .then(function() {
+                if (abortTimer) clearTimeout(abortTimer);
+                // A stale poll must not release the guard of the poll that replaced it.
+                if (isStale()) return;
+                if (handoffPollAbort === ctrl) handoffPollAbort = null;
+                isHandoffPolling = false;
+            });
     }
 
     function messageKey(msg) {

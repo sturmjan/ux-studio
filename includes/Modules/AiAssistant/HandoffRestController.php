@@ -256,12 +256,36 @@ final class HandoffRestController extends Controller {
 		$id      = absint( $request->get_param( 'id' ) );
 		$user_id = get_current_user_id();
 
-		$assigned = ( new HandoffManager() )->assign_operator( $id, $user_id );
+		$manager  = new HandoffManager();
+		$assigned = $manager->assign_operator( $id, $user_id );
 		if ( ! $assigned ) {
-			return new WP_Error( 'uxstudio_handoff_assign_failed', __( 'Could not take over the conversation.', 'ux-studio' ), array( 'status' => 400 ) );
+			return $this->not_takeable_error( $manager, $id );
 		}
 
 		return $this->ok( array( 'assigned' => true, 'assigned_to' => $user_id ) );
+	}
+
+	/**
+	 * Explains why a conversation could not be taken over / answered. 409 with a
+	 * message the admin UI shows as-is (HandoffTab prints the mutation error).
+	 */
+	private function not_takeable_error( HandoffManager $manager, int $id ): WP_Error {
+		$status = $manager->get_status_by_id( $id );
+
+		if ( null === $status ) {
+			return new WP_Error( 'uxstudio_handoff_not_found', __( 'Conversation not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		if ( HandoffManager::STATUS_AI === $status ) {
+			return new WP_Error( 'uxstudio_handoff_request_cancelled', __( 'The customer has cancelled the operator request, so there is nothing to take over. Refresh the list.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+		if ( HandoffManager::STATUS_ACTIVE === $status ) {
+			return new WP_Error( 'uxstudio_handoff_already_taken', __( 'Another operator has already taken over this conversation.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+		if ( HandoffManager::STATUS_CLOSED === $status ) {
+			return new WP_Error( 'uxstudio_handoff_closed', __( 'This conversation has already been closed.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+
+		return new WP_Error( 'uxstudio_handoff_assign_failed', __( 'Could not take over the conversation.', 'ux-studio' ), array( 'status' => 400 ) );
 	}
 
 	public function operator_message( WP_REST_Request $request ) {
@@ -276,8 +300,13 @@ final class HandoffRestController extends Controller {
 		$manager = new HandoffManager();
 
 		// Auto-assign the operator replying to a still-pending request.
-		if ( HandoffManager::STATUS_REQUESTED === $manager->get_status_by_id( $id ) ) {
-			$manager->assign_operator( $id, $user_id );
+		if ( HandoffManager::STATUS_REQUESTED === $manager->get_status_by_id( $id ) && ! $manager->assign_operator( $id, $user_id ) ) {
+			return $this->not_takeable_error( $manager, $id );
+		}
+
+		// Only write to a visitor who is listening: after a cancel (status "ai") or a close the widget no longer polls.
+		if ( HandoffManager::STATUS_ACTIVE !== $manager->get_status_by_id( $id ) ) {
+			return $this->not_takeable_error( $manager, $id );
 		}
 
 		$sent = $manager->send_operator_message( $id, $user_id, $message );

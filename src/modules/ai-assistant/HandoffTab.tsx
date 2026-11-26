@@ -217,6 +217,13 @@ function ConversationPanel( { id }: { id: number } ): JSX.Element {
 				</div>
 			</div>
 
+			{ ( assign.error || sendReply.error ) && (
+				// E.g. "The customer has cancelled the operator request" (409) when the list was stale.
+				<div className="uxs-notice" role="alert">
+					{ ( assign.error ?? sendReply.error )?.message }
+				</div>
+			) }
+
 			<div className="uxs-handoff-conversation__messages">
 				{ data.messages.map( ( m, i ) => (
 					<div key={ i } className={ `uxs-handoff-msg uxs-handoff-msg--${ m.role }` }>

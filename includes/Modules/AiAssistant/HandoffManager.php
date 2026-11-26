@@ -42,49 +42,46 @@ final class HandoffManager {
 		$table = $this->table();
 		$now   = current_time( 'mysql' );
 
-		$conversation = $this->get_by_session( $session_id );
+		// One row per session: the chat save may be inserting its own row right now (the visitor can press the
+		// button while the first answer is still streaming), see ConversationStore::ensure_row().
+		$conversation_id = ConversationStore::ensure_row(
+			$session_id,
+			array(
+				'session_id'         => $session_id,
+				'visitor_ip'         => $this->get_visitor_ip(),
+				'visitor_user_agent' => substr( (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 0, 500 ),
+				'page_url'           => '',
+				'messages'           => wp_json_encode( array() ),
+				'status'             => 'active',
+				'gdpr_consent'       => 1,
+				'handoff_status'     => self::STATUS_AI,
+				'last_message_at'    => $now,
+				'created_at'         => $now,
+				'updated_at'         => $now,
+			)
+		);
 
-		if ( ! $conversation ) {
-			$wpdb->insert(
-				$table,
-				array(
-					'session_id'            => $session_id,
-					'visitor_ip'            => $this->get_visitor_ip(),
-					'visitor_user_agent'    => substr( (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 0, 500 ),
-					'page_url'              => '',
-					'messages'              => wp_json_encode( array() ),
-					'status'                => 'active',
-					'gdpr_consent'          => 1,
-					'handoff_status'        => self::STATUS_REQUESTED,
-					'handoff_requested_at'  => $now,
-					'operator_unread'       => 1,
-					'last_message_at'       => $now,
-					'created_at'            => $now,
-					'updated_at'            => $now,
-				)
+		// Atomic transition ai/closed -> requested. Zero affected rows means a request is already waiting or an
+		// operator is already live - do not re-trigger the flow (no second system message / e-mail).
+		$changed = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET handoff_status = %s, handoff_requested_at = %s, operator_unread = 1, last_message_at = %s, updated_at = %s
+				 WHERE id = %d AND handoff_status NOT IN (%s, %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				self::STATUS_REQUESTED,
+				$now,
+				$now,
+				$now,
+				$conversation_id,
+				self::STATUS_REQUESTED,
+				self::STATUS_ACTIVE
+			)
+		);
+		if ( ! $changed ) {
+			$current = $this->get_status_by_id( $conversation_id );
+			return array(
+				'status'    => $current ?? self::STATUS_REQUESTED,
+				'requested' => false,
 			);
-			$conversation_id = (int) $wpdb->insert_id;
-		} else {
-			// Already waiting or already with an operator - do not re-trigger the flow.
-			if ( in_array( $conversation->handoff_status, array( self::STATUS_REQUESTED, self::STATUS_ACTIVE ), true ) ) {
-				return array(
-					'status'    => $conversation->handoff_status,
-					'requested' => false,
-				);
-			}
-
-			$wpdb->update(
-				$table,
-				array(
-					'handoff_status'       => self::STATUS_REQUESTED,
-					'handoff_requested_at' => $now,
-					'operator_unread'      => 1,
-					'last_message_at'      => $now,
-					'updated_at'           => $now,
-				),
-				array( 'id' => $conversation->id )
-			);
-			$conversation_id = (int) $conversation->id;
 		}
 
 		$message = '' !== $reason
@@ -110,15 +107,19 @@ final class HandoffManager {
 		}
 
 		global $wpdb;
-		$wpdb->update(
+		// Only from "requested": if an operator took over in the meantime this changes nothing.
+		$changed = $wpdb->update(
 			$this->table(),
 			array(
 				'handoff_status'   => self::STATUS_AI,
 				'operator_unread'  => 0,
 				'updated_at'       => current_time( 'mysql' ),
 			),
-			array( 'id' => $conversation->id )
+			array( 'id' => $conversation->id, 'handoff_status' => self::STATUS_REQUESTED )
 		);
+		if ( ! $changed ) {
+			return false;
+		}
 
 		$this->append_message( $session_id, 'system', __( 'The customer cancelled the operator request.', 'ux-studio' ) );
 
@@ -126,7 +127,13 @@ final class HandoffManager {
 	}
 
 	/**
-	 * Operator picks up a pending (or, defensively, already-active) conversation.
+	 * Operator picks up a pending conversation. Succeeds only while the
+	 * conversation is still "requested": a stale admin list may offer a request
+	 * the visitor already cancelled (status back to "ai"), and taking that over
+	 * would write to a visitor who is no longer listening. The check is part of
+	 * the UPDATE, so it is atomic against a concurrent cancel. Taking over a
+	 * conversation that this same operator already holds is a harmless no-op
+	 * (double click); one held by another operator is refused.
 	 */
 	public function assign_operator( int $conversation_id, int $user_id ): bool {
 		global $wpdb;
@@ -140,11 +147,11 @@ final class HandoffManager {
 				'operator_unread'      => 0,
 				'updated_at'           => current_time( 'mysql' ),
 			),
-			array( 'id' => $conversation_id )
+			array( 'id' => $conversation_id, 'handoff_status' => self::STATUS_REQUESTED )
 		);
 
-		if ( false === $updated ) {
-			return false;
+		if ( ! $updated ) {
+			return $this->is_held_by( $conversation_id, $user_id );
 		}
 
 		$session_id = $this->get_session_id( $conversation_id );
@@ -155,6 +162,14 @@ final class HandoffManager {
 		}
 
 		return true;
+	}
+
+	private function is_held_by( int $conversation_id, int $user_id ): bool {
+		global $wpdb;
+		$row = $wpdb->get_row(
+			$wpdb->prepare( "SELECT handoff_status, handoff_assigned_to FROM {$this->table()} WHERE id = %d", $conversation_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+		return $row && self::STATUS_ACTIVE === $row->handoff_status && (int) $row->handoff_assigned_to === $user_id;
 	}
 
 	/**
@@ -217,16 +232,8 @@ final class HandoffManager {
 	public function send_operator_message( int $conversation_id, int $user_id, string $message ) {
 		global $wpdb;
 
-		$conversation = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$this->table()} WHERE id = %d", $conversation_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
-		if ( ! $conversation ) {
-			return false;
-		}
-
 		$operator_name = $this->operator_name( $user_id );
 
-		$messages   = json_decode( (string) $conversation->messages, true ) ?: array();
 		$new_message = array(
 			'role'       => 'agent',
 			'content'    => $message,
@@ -234,18 +241,19 @@ final class HandoffManager {
 			'agent_name' => $operator_name,
 			'timestamp'  => current_time( 'mysql' ),
 		);
-		$messages[] = $new_message;
 
-		$wpdb->update(
-			$this->table(),
+		$messages = ConversationStore::append_messages(
+			$conversation_id,
+			array( $new_message ),
 			array(
-				'messages'        => wp_json_encode( $messages ),
-				'customer_unread' => ( (int) ( $conversation->customer_unread ?? 0 ) ) + 1,
 				'last_message_at' => current_time( 'mysql' ),
 				'updated_at'      => current_time( 'mysql' ),
 			),
-			array( 'id' => $conversation_id )
+			static fn( object $row ): array => array( 'customer_unread' => ( (int) ( $row->customer_unread ?? 0 ) ) + 1 )
 		);
+		if ( null === $messages ) {
+			return false;
+		}
 
 		return array(
 			'message'     => $new_message,
@@ -265,26 +273,26 @@ final class HandoffManager {
 			return false;
 		}
 
-		$messages   = json_decode( (string) $conversation->messages, true ) ?: array();
-		$messages[] = array(
-			'role'      => 'user',
-			'content'   => $message,
-			'timestamp' => current_time( 'mysql' ),
-		);
-
-		$update = array(
-			'messages'         => wp_json_encode( $messages ),
-			'operator_unread'  => ( (int) ( $conversation->operator_unread ?? 0 ) ) + 1,
-			'last_message_at'  => current_time( 'mysql' ),
-			'updated_at'       => current_time( 'mysql' ),
+		$extra = array(
+			'last_message_at' => current_time( 'mysql' ),
+			'updated_at'      => current_time( 'mysql' ),
 		);
 		if ( '' !== $page_url ) {
-			$update['page_url'] = $page_url;
+			$extra['page_url'] = $page_url;
 		}
 
-		$wpdb->update( $this->table(), $update, array( 'id' => $conversation->id ) );
-
-		return true;
+		return null !== ConversationStore::append_messages(
+			(int) $conversation->id,
+			array(
+				array(
+					'role'      => 'user',
+					'content'   => $message,
+					'timestamp' => current_time( 'mysql' ),
+				),
+			),
+			$extra,
+			static fn( object $row ): array => array( 'operator_unread' => ( (int) ( $row->operator_unread ?? 0 ) ) + 1 )
+		);
 	}
 
 	/**
@@ -502,30 +510,30 @@ final class HandoffManager {
 	 * customer-facing widget should surface, e.g. operator joined/left).
 	 */
 	private function append_message( string $session_id, string $role, string $content, bool $notify_customer = false ): void {
-		global $wpdb;
-
 		$conversation = $this->get_by_session( $session_id );
 		if ( ! $conversation ) {
 			return;
 		}
 
-		$messages   = json_decode( (string) $conversation->messages, true ) ?: array();
-		$messages[] = array(
-			'role'      => $role,
-			'content'   => $content,
-			'timestamp' => current_time( 'mysql' ),
-		);
+		$on_row = $notify_customer
+			? static fn( object $row ): array => array( 'customer_unread' => ( (int) ( $row->customer_unread ?? 0 ) ) + 1 )
+			: null;
 
-		$update = array(
-			'messages'        => wp_json_encode( $messages ),
-			'last_message_at' => current_time( 'mysql' ),
-			'updated_at'      => current_time( 'mysql' ),
+		ConversationStore::append_messages(
+			(int) $conversation->id,
+			array(
+				array(
+					'role'      => $role,
+					'content'   => $content,
+					'timestamp' => current_time( 'mysql' ),
+				),
+			),
+			array(
+				'last_message_at' => current_time( 'mysql' ),
+				'updated_at'      => current_time( 'mysql' ),
+			),
+			$on_row
 		);
-		if ( $notify_customer ) {
-			$update['customer_unread'] = ( (int) ( $conversation->customer_unread ?? 0 ) ) + 1;
-		}
-
-		$wpdb->update( $this->table(), $update, array( 'id' => $conversation->id ) );
 	}
 
 	/**
