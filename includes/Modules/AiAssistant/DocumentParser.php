@@ -8,6 +8,8 @@
 
 namespace UxStudio\Modules\AiAssistant;
 
+use Ux1\AiCore\Rag\ChunkingEngine;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -50,68 +52,11 @@ final class DocumentParser {
 	 * @return array<int, string>
 	 */
 	public static function chunk( string $text, int $max_chunk_size = 1500 ): array {
-		$text = trim( $text );
-		if ( '' === $text ) {
-			return array();
-		}
+		// One chunker for everything (core ChunkingEngine): documents use bigger chunks, no overlap, and are
+		// already plain text, so no HTML stripping.
+		$chunks = ( new ChunkingEngine( $max_chunk_size, 0, false ) )->chunk( $text );
 
-		$paragraphs    = preg_split( '/\n\s*\n/', $text );
-		$chunks        = array();
-		$current_chunk = '';
-
-		foreach ( (array) $paragraphs as $paragraph ) {
-			$paragraph = trim( (string) $paragraph );
-			if ( '' === $paragraph ) {
-				continue;
-			}
-
-			if ( mb_strlen( $paragraph ) > $max_chunk_size ) {
-				if ( '' !== $current_chunk ) {
-					$chunks[]      = $current_chunk;
-					$current_chunk = '';
-				}
-
-				$sentence_buffer = '';
-				foreach ( self::split_into_sentences( $paragraph ) as $sentence ) {
-					$sentence = trim( $sentence );
-					if ( '' === $sentence ) {
-						continue;
-					}
-					if ( '' === $sentence_buffer ) {
-						$sentence_buffer = $sentence;
-					} elseif ( mb_strlen( $sentence_buffer . ' ' . $sentence ) <= $max_chunk_size ) {
-						$sentence_buffer .= ' ' . $sentence;
-					} else {
-						$chunks[]        = $sentence_buffer;
-						$sentence_buffer = $sentence;
-					}
-				}
-				if ( '' !== $sentence_buffer ) {
-					$chunks[] = $sentence_buffer;
-				}
-				continue;
-			}
-
-			if ( '' === $current_chunk ) {
-				$current_chunk = $paragraph;
-			} elseif ( mb_strlen( $current_chunk . "\n\n" . $paragraph ) <= $max_chunk_size ) {
-				$current_chunk .= "\n\n" . $paragraph;
-			} else {
-				$chunks[]      = $current_chunk;
-				$current_chunk = $paragraph;
-			}
-		}
-
-		if ( '' !== $current_chunk ) {
-			$chunks[] = $current_chunk;
-		}
-
-		return array_values(
-			array_filter(
-				array_map( 'trim', $chunks ),
-				static fn( string $c ): bool => '' !== $c
-			)
-		);
+		return array_map( static fn( array $chunk ): string => $chunk['text'], $chunks );
 	}
 
 	/**
@@ -285,15 +230,5 @@ final class DocumentParser {
 		}
 
 		return trim( $content );
-	}
-
-	/**
-	 * Split text into sentences on . ! ? boundaries.
-	 *
-	 * @return array<int, string>
-	 */
-	private static function split_into_sentences( string $text ): array {
-		$sentences = preg_split( '/(?<=[.!?])\s+/', $text );
-		return false === $sentences ? array( $text ) : $sentences;
 	}
 }

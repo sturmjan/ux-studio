@@ -4804,10 +4804,10 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 
 ### 45.5 Chyby a slabiny, které se mají opravit při přesunu (ne přenést)
 
-- tf-idf fallback: dotaz má IDF = 1, dokumenty IDF z dávky, vektory jsou nekonzistentní.
-- Vektory různých embedding modelů jsou v jedné tabulce a hledání nefiltruje podle `embedding_model`.
+- ~~tf-idf fallback: dotaz má IDF = 1, dokumenty IDF z dávky, vektory jsou nekonzistentní.~~ **Opraveno 2026-11-26:** záložní embedding už nemá žádnou váhu závislou na dávce (`embed($t) === embed_batch([...,$t])[n]`), nové id modelu `tf-idf-256-v2`; staré vektory `tf-idf-256` se hledáním nečtou a na pozadí se přepočítají z uloženého textu (viz F1).
+- ~~Vektory různých embedding modelů jsou v jedné tabulce a hledání nefiltruje podle `embedding_model`.~~ **Opraveno 2026-11-26:** port `VectorStore` v jádru vyžaduje model, `$wpdb` implementace filtruje `embedding_model = <aktuální model>` a `VectorSearch::is_available()` počítá jen vektory aktuálního modelu (po změně modelu, např. přidání OpenAI klíče, je potřeba „indexovat existující data“).
 - Vektory jako JSON text, cosine přes celou tabulku v PHP (O(N) na dotaz). Pro CA ukládat binárně (`pack`) a omezit počet kandidátů předvýběrem přes FULLTEXT. Odhad: do desítek tisíc chunků na bota je to použitelné, měřit.
-- Dva chunkery (800 a 1500 znaků), sjednotit.
+- ~~Dva chunkery (800 a 1500 znaků), sjednotit.~~ **Opraveno 2026-11-26:** jeden `ChunkingEngine(velikost, překryv, strip_html)` v jádru; zdroje školení 800/200, dokumenty `DocumentParser::chunk()` 1500/0 bez odstraňování HTML. Dokumenty mají nově i dělení příliš dlouhých vět na hranici slov a sloučené bílé znaky.
 - Poptávky z kontaktu a callbacku jsou jen v DB a v e-mailu, admin je nevypíše (hrozí ztráta leadů).
 - Karta produktu se po odpovědi stahuje dvakrát (zobrazení a uložení do historie).
 - Polling handoffu nemá timeout (jednou se při přetíženém serveru nepřijala zpráva operátora, neopakovatelné).
@@ -4825,8 +4825,8 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 - [x] Repo `sturmjan/ux1-ai-core` (privátní, lokálně `D:\xampp\htdocs\.komponenty\ux1-ai-core`): autoloader bez Composeru, vlastní testovací runner, strážce čistoty `tests/purity.php` (shodí build při volání WordPressu nebo CA), CI na PHP 8.1-8.4 zelené; 2026-11-26.
 - [x] Přesunout textové providery (Claude, OpenAI, DeepSeek, Claude Code Bridge) se streamem a odhadem tokenů za rozhraní `HttpClient` (jádro 0.1.0, 2026-11-26). OpenAI a DeepSeek jsou jedna třída `OpenAiCompatibleProvider` s konfigurací. Opraveno při přesunu: chyba HTTP u streamu OpenAI/DeepSeek už nekončí tichou prázdnou odpovědí.
 - [x] Plugin přepnutý na providery z jádra: `vendor/ux1-ai-core` přes `bin/sync-core.php` (kontrolní součty nezávislé na koncích řádků, `--check` v release workflow), `CoreProvider` adaptér, `WpHttpClient` (běžné požadavky přes WP HTTP API, stream přes cURL s CA bundle WP). Testy: jádro 21/21, `tests/ai-core-providers.php` 11/11, charakterizační testy, e2e smoke 9/9 na lokálních pobytech.
-- [ ] Embeddingy do jádra (metoda `embed` u providerů, OpenAI embeddingy).
-- [ ] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker).
+- [x] Embeddingy do jádra: `Rag\EmbeddingProvider`, `OpenAiEmbedding` (přes port `HttpClient`, dávky po 100) a `FallbackEmbedding`; plugin je skládá v `EmbeddingFactory` (2026-11-26, větev `feature/rag` v jádru).
+- [x] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker): jádro `src/Rag/` + `docs/rag.md`, v pluginu zůstal `VectorStore` jako `$wpdb` implementace portu a tenký `VectorSearch`. Testy: jádro `tests/RagTest.php`, plugin `tests/ai-rag-characterization.php` (chyba IDF přepnuta na konzistenci), `tests/ai-rag-core-adapters.php`. **Po nasazení:** jednorázový cron `uxstudio_ai_assistant_revectorize_batch` přepočítá staré vektory `tf-idf-256` (po 100 řádcích, z uloženého `chunk_text`, bez nového crawlu); do přepočtu hledání spadne na FULLTEXT/znalostní bázi. Neověřeno v prohlížeči.
 - [ ] Obrázkové providery z CA (Gemini, OpenAI gpt-image) do jádra.
 - [ ] Automat aktualizačních PR (GitHub Action v ux1-ai-core po tagu otevře PR v pluginu a v CA).
 - [ ] CA: vendorovat jádro do `lib/ux1-ai-core` a přepnout `core/providers` na providery z jádra.

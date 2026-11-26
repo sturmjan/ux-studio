@@ -2,10 +2,10 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Characterization test of the RAG pieces that move to the shared AI core (PLAN.md §45, F0):
- * Rag\ChunkingEngine and Rag\FallbackEmbedding. It pins today's behaviour so the extraction to ux1-ai-core
- * changes nothing by accident. Cases marked "KNOWN BUG (45.5)" document a defect that the core fixes on purpose;
- * when that fix lands, flip the expectation in the same change.
+ * Characterization test of the RAG pieces that moved to the shared AI core (PLAN.md §45): ChunkingEngine and
+ * FallbackEmbedding (now vendor/ux1-ai-core, Ux1\AiCore\Rag). It pinned the plugin behaviour before the extraction;
+ * the cases that document a defect fixed on purpose (45.5) were flipped deliberately in the same change: the
+ * fallback embedding is now batch-independent (query vector == document vector) and has the new model id.
  *
  *   php tests/ai-rag-characterization.php
  *
@@ -17,15 +17,12 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 // phpcs:disable
 
 define( 'ABSPATH', __DIR__ . '/' );
-function wp_strip_all_tags( $text ) { return trim( strip_tags( (string) $text ) ); }
+require dirname( __DIR__ ) . '/vendor/ux1-ai-core/autoload.php';
+require dirname( __DIR__ ) . '/includes/Modules/AiAssistant/DocumentParser.php';
 
-$base = dirname( __DIR__ ) . '/includes/Modules/AiAssistant/Rag/';
-require $base . 'ChunkingEngine.php';
-require $base . 'EmbeddingProviderInterface.php';
-require $base . 'FallbackEmbedding.php';
-
-use UxStudio\Modules\AiAssistant\Rag\ChunkingEngine;
-use UxStudio\Modules\AiAssistant\Rag\FallbackEmbedding;
+use Ux1\AiCore\Rag\ChunkingEngine;
+use Ux1\AiCore\Rag\FallbackEmbedding;
+use UxStudio\Modules\AiAssistant\DocumentParser;
 
 $failed = 0;
 function check( string $name, bool $ok, string $detail = '' ): void {
@@ -59,6 +56,7 @@ check( 'chunk: empty input gives no chunks', array() === $chunker->chunk( '   ' 
 // ── Fallback embedding (tf-idf, 256 dimensions) ─────────────────────────
 $emb = new FallbackEmbedding();
 check( 'embed: fallback reports 256 dimensions', 256 === $emb->get_dimensions() );
+check( 'embed: fallback has the new model id (old vectors are never mixed in)', 'tf-idf-256-v2' === $emb->get_model_name() && in_array( 'tf-idf-256', FallbackEmbedding::LEGACY_MODELS, true ) );
 $v1 = $emb->embed( 'lázně Luhačovice pobyt senioři' );
 check( 'embed: vector has 256 numbers', 256 === count( $v1 ) );
 $norm = sqrt( array_sum( array_map( static fn( $x ) => $x * $x, $v1 ) ) );
@@ -72,11 +70,19 @@ check( 'embed: a related text is closer than an unrelated one', cosine( $v1, $re
 // "pobyt" is in every text, as common words are in real data, so the batch IDF weights terms unequally.
 $batch = $emb->embed_batch( array( 'lázně Luhačovice pobyt senioři', 'pobyt wellness víkend Třeboň', 'pobyt dárkový poukaz' ) );
 check( 'embed_batch: one vector per text', 3 === count( $batch ) );
-// KNOWN BUG (45.5): embed() on a fresh instance (every query request) uses IDF = 1, while embed_batch() (indexing)
-// weights by the batch vocabulary, so the query vector and the stored vector of the very same text differ. The
-// vocabulary also differs from batch to batch. The core fixes this; then expect equality here.
+// FIXED (45.5): the batch-dependent IDF is gone, so the query vector (embed) equals the document vector
+// (embed_batch) of the same text, whatever else is in the batch.
 $fresh = ( new FallbackEmbedding() )->embed( 'lázně Luhačovice pobyt senioři' );
-check( 'KNOWN BUG (45.5): query embed differs from batch embed of the same text', cosine( $batch[0], $fresh ) < 0.9999, 'cosine ' . round( cosine( $batch[0], $fresh ), 6 ) );
+check( 'embed: query embed equals batch embed of the same text', $batch[0] === $fresh, 'cosine ' . round( cosine( $batch[0], $fresh ), 6 ) );
+
+// ── One chunker, two parameter sets ─────────────────────────────────────
+$doc = array_map( static fn( $i ) => str_repeat( chr( 97 + $i ), 900 ), range( 0, 2 ) );
+check( 'document chunker: 1500 chars, paragraphs kept whole, no overlap', array( $doc[0], $doc[1], $doc[2] ) === DocumentParser::chunk( implode( "
+
+", $doc ) ) );
+check( 'document chunker: plain text is not HTML-stripped', array( 'a < b and c > d' ) === DocumentParser::chunk( 'a < b and c > d' ) );
+check( 'document chunker: empty input gives no chunks', array() === DocumentParser::chunk( "  
+ " ) );
 
 echo PHP_EOL . ( $failed ? "{$failed} failed" : 'all passed' ) . PHP_EOL;
 exit( $failed ? 1 : 0 );
