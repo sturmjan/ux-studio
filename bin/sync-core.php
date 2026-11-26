@@ -31,7 +31,8 @@ function ux1_hashes( string $root ): array {
 		if ( 'checksums.json' === $rel ) {
 			continue;
 		}
-		$out[ $rel ] = hash_file( 'sha256', $file->getPathname() );
+		// Hash with normalised line endings: a Windows checkout (core.autocrlf) has CRLF, git and CI have LF.
+		$out[ $rel ] = hash( 'sha256', str_replace( "\r\n", "\n", (string) file_get_contents( $file->getPathname() ) ) );
 	}
 	ksort( $out );
 	return $out;
