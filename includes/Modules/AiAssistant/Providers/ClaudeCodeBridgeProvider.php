@@ -43,16 +43,11 @@ final class ClaudeCodeBridgeProvider implements AiProviderInterface {
 	}
 
 	public function generate_content( string $system_prompt, string $user_prompt, string $model, array $options = array() ): array {
-		$text = $this->request(
-			array( array( 'role' => 'user', 'content' => $user_prompt ) ),
-			$system_prompt
-		);
+		$messages = array( array( 'role' => 'user', 'content' => $user_prompt ) );
+		$text     = $this->request( $messages, $system_prompt );
 		return array(
 			'content' => $text,
-			'usage'   => array(
-				'input_tokens'  => 0,
-				'output_tokens' => 0,
-			),
+			'usage'   => $this->estimate_usage( $messages, $system_prompt, $text ),
 		);
 	}
 
