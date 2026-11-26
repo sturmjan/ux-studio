@@ -4779,6 +4779,8 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 4. **Jeden schéma-soubor** (SQL pro MySQL/MariaDB) v jádru. WP ho spouští přes `dbDelta`, CA přes `Migrator` (migrace 129 a dál; 120-127 jsou v číslování volné, nepoužívat).
 5. **Widget je jeden JS bundle v jádru.** Konfigurace z globální proměnné nebo `data-` atributů. Dva režimy: `same-origin` (WP, jako dnes) a `cross-origin` (CA: bez cookies, veřejný klíč bota, povolené domény).
 6. **Rozhraní odpovědí je jedno** (obálka `{data, meta}` nebo holé JSON, rozhodnout jednou) a widget přijímá obě varianty, ať se chyba z 45.1 neopakuje.
+7. **Upřesnění zadání (majitel, 2026-11-26): CA NEvyřizuje požadavky z WordPress webů.** Žádné proxy přes CA. Jádro je kód, který běží na dvou místech samostatně: uvnitř pluginu (na webu zákazníka, s jeho klíčem) a uvnitř CA (pro boty uživatelů CA). Nová funkce (například generování obrázků) se napíše jednou v jádru a obě aplikace ji dostanou vydáním nové verze jádra. Dashboardy jsou dva a zůstávají vlastní (admin UX1 Studia a CA), napojené na jádro přes jeho API a deklarativní schéma nastavení, ne sdílený UI kód. Sdílené je: logika (providery vč. obrázků, RAG, prompty, nástroje, limity), widget a schéma nastavení. Nesdílené je: úložiště (adaptéry), přihlášení, kredity a fakturace, vzhled dashboardů.
+8. **Pravidlo pro novou funkci:** logika a pole nastavení patří do jádra, dashboard je jen vykreslí (UX1 Studio už má deklarativní `settings_schema()`, CA si ho vykreslí svým stylem). Funkce, která potřebuje přístup k datům hostitele, dostane port (rozhraní), ne přímé volání WordPressu ani CA.
 
 ### 45.3 Porty (co dodá hostitel)
 
