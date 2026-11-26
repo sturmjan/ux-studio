@@ -6,11 +6,9 @@
 - Fixed: AI Assistant - saving a chat answer no longer overwrites the conversation: the "customer requested / cancelled an operator" notes and operator replies added while the answer was still streaming were lost. Messages are now appended to the stored conversation.
 - Fixed: AI Assistant - one chat session could end up with two conversation rows (chat save and operator request inserting at the same moment); the duplicate is now removed.
 - Fixed: AI Assistant handoff - an operator can no longer take over (or write to) a request the visitor already cancelled or another operator holds; the inbox shows "The customer has cancelled the operator request" instead of silently succeeding.
+- Changed: AI Assistant - knowledge search (chunking, embeddings, vector and hybrid search) now comes from the shared AI core. Fixed on the way: the built-in fallback embedding weighted a question differently from the stored texts (worse matches), vectors of different embedding models were searched together, and documents used a second, different text splitter. Vectors of the old fallback model are re-computed once in the background after the update; until then answers use the knowledge base and full-text search.
 - Changed: AI Assistant - the AI providers (Claude, OpenAI, DeepSeek, Claude Code Bridge) now come from the shared AI core ux1-ai-core (vendor/ux1-ai-core), which UX1 Network app uses too. Settings, models and saved keys are unchanged.
 - Fixed: AI Assistant - when OpenAI or DeepSeek refused a streamed chat answer (wrong key, quota, unknown model), the visitor got an empty answer and nothing was logged; the error is now logged and the chat falls back to another provider with a key.
-
-## Unreleased
-
 - Added: AI Assistant - "Claude Code Bridge (local PC)" provider for development and internal use: talks to a local Claude Code Bridge daemon (token stored encrypted, URL and working directory in Settings). Answers are not streamed and tool calling is not offered; token usage is estimated so limits and statistics count these calls.
 - Fixed: AI Assistant settings - a saved Claude or OpenAI model that is no longer in the provider list showed an empty select ("Choose an option"); it is now offered as "(saved, no longer listed)" and saving the form keeps it.
 - Fixed: AI Assistant chat widget - product cards under an answer were empty (no name, price or image, link "#") and the FAQ chips under the greeting never appeared. The widget did not unwrap the { data, meta } envelope of the REST API.

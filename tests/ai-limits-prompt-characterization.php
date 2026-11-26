@@ -51,6 +51,7 @@ final class UxsFakeWpdb {
 }
 $GLOBALS['wpdb'] = new UxsFakeWpdb();
 
+require dirname( __DIR__ ) . '/vendor/ux1-ai-core/autoload.php'; // PromptBuilder formats RAG hits through the core.
 $dir = dirname( __DIR__ ) . '/includes/Modules/AiAssistant/';
 spl_autoload_register( static function ( $class ) use ( $dir ) {
 	$prefix = 'UxStudio\\Modules\\AiAssistant\\';

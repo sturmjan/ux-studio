@@ -9,6 +9,9 @@
 
 namespace UxStudio\Modules\AiAssistant\Rag;
 
+use Ux1\AiCore\Rag\ChunkingEngine;
+use Ux1\AiCore\Rag\EmbeddingProvider;
+use Ux1\AiCore\Rag\FallbackEmbedding;
 use UxStudio\Modules\AiAssistant\KnowledgeBootstrap;
 
 defined( 'ABSPATH' ) || exit;
@@ -26,8 +29,14 @@ final class TrainingSourceManager {
 
 	private const BATCH_SIZE = 5;
 
+	/** Rows re-embedded per cron run by revectorize_legacy_batch(). */
+	private const REVECTORIZE_BATCH = 100;
+
+	/** Give up re-embedding after this many failed runs (the admin "index existing data" action still works). */
+	private const REVECTORIZE_MAX_FAILURES = 3;
+
 	private ChunkingEngine $chunker;
-	private EmbeddingProviderInterface $embedding;
+	private EmbeddingProvider $embedding;
 	private VectorStore $store;
 	private string $sources_table;
 
@@ -387,6 +396,54 @@ final class TrainingSourceManager {
 		}
 
 		return array( 'success' => true, 'chunks' => $total_chunks, 'vectors' => $total_vectors );
+	}
+
+	/**
+	 * Whether vectors made by an earlier, inconsistent fallback embedding (core FallbackEmbedding::LEGACY_MODELS)
+	 * are still stored. Search ignores them (it reads only the current model), so they need re-embedding.
+	 */
+	public function has_legacy_vectors(): bool {
+		return $this->store->count_by_models( FallbackEmbedding::LEGACY_MODELS ) > 0;
+	}
+
+	/**
+	 * WP-Cron callback: re-embed one batch of legacy-model vectors from their stored chunk_text (no re-crawl, no
+	 * source re-processing) with the CURRENT embedding provider, replacing vector and model id in place. Chunk
+	 * ids, targets, metadata and the FULLTEXT index are untouched. Reschedules itself while rows remain; after
+	 * REVECTORIZE_MAX_FAILURES failed runs (e.g. the embedding API is down) it stops and logs.
+	 */
+	public function revectorize_legacy_batch(): void {
+		$rows = $this->store->rows_by_models( FallbackEmbedding::LEGACY_MODELS, self::REVECTORIZE_BATCH );
+		if ( empty( $rows ) ) {
+			delete_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES );
+			return;
+		}
+
+		try {
+			$vectors = $this->embedding->embed_batch( array_column( $rows, 'chunk_text' ) );
+			if ( count( $vectors ) !== count( $rows ) ) {
+				throw new \RuntimeException( 'Embedding count does not match row count.' );
+			}
+		} catch ( \Throwable $e ) {
+			$failures = (int) get_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES, 0 ) + 1;
+			update_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES, $failures, false );
+			error_log( 'UX1 Studio AI Assistant RAG re-vectorization failed (' . $failures . '/' . self::REVECTORIZE_MAX_FAILURES . '): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			if ( $failures < self::REVECTORIZE_MAX_FAILURES ) {
+				wp_schedule_single_event( time() + HOUR_IN_SECONDS, KnowledgeBootstrap::CRON_REVECTORIZE );
+			}
+			return;
+		}
+
+		$model = $this->embedding->get_model_name();
+		foreach ( $rows as $i => $row ) {
+			$this->store->update_vector( $row['id'], $vectors[ $i ], $model );
+		}
+
+		if ( count( $rows ) >= self::REVECTORIZE_BATCH && $this->has_legacy_vectors() ) {
+			wp_schedule_single_event( time() + 10, KnowledgeBootstrap::CRON_REVECTORIZE );
+		} else {
+			delete_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES );
+		}
 	}
 
 	/**

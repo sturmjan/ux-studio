@@ -14,6 +14,13 @@ Celý plán, rozhodnutí a fáze jsou v repu pluginu: `PLAN.md` §45 (`sturmjan/
 4. **Nastavení jsou deklarativní.** Každá funkce popíše svá pole (typ, výchozí hodnota, nápověda). Oba dashboardy je vykreslí svým stylem.
 5. **Vendorovaná kopie se nikdy neupravuje.** Změna patří sem, pak se vydá verze a aktualizuje se v obou aplikacích.
 
+## Co jádro umí (0.2.0)
+
+- `Http/`: port `HttpClient`, `CurlHttpClient` (CA bundle, IPv4, TLS), SSE buffer.
+- `Provider/`: textové providery Claude, OpenAI, DeepSeek (společný `OpenAiCompatibleProvider`), Claude Code Bridge; výjimky `ProviderException` a `BridgeException` s detaily (status, kód, retry_after).
+- `Image/`: generování obrázků Gemini a OpenAI gpt-image, styly, poměry, rozlišení, odhad ceny, geometrie ořezů pro sociální sítě (viz `docs/images.md`).
+- `Rag/`: chunking, embeddingy (OpenAI, záložní tf-idf-256-v2), hybridní vektorové hledání nad portem `VectorStore` (viz `docs/rag.md`).
+
 ## Struktura
 
 ```

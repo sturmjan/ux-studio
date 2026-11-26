@@ -7,8 +7,12 @@
 
 namespace UxStudio\Modules\AiAssistant\Rag;
 
+use Ux1\AiCore\Rag\EmbeddingProvider;
+use Ux1\AiCore\Rag\FallbackEmbedding;
+use Ux1\AiCore\Rag\OpenAiEmbedding;
 use UxStudio\Core\Security;
 use UxStudio\Modules\AiAssistant\ProviderFactory;
+use UxStudio\Modules\AiAssistant\WpHttpClient;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,11 +29,11 @@ final class EmbeddingFactory {
 	/**
 	 * Build the best available embedding provider.
 	 */
-	public static function create(): EmbeddingProviderInterface {
+	public static function create(): EmbeddingProvider {
 		$api_key = Security::get_secret( ProviderFactory::secret_option( 'openai' ) );
 
 		if ( '' !== $api_key ) {
-			return new OpenAiEmbedding( $api_key );
+			return new OpenAiEmbedding( $api_key, new WpHttpClient() );
 		}
 
 		return new FallbackEmbedding();
