@@ -63,10 +63,11 @@ final class ChatEngine {
 
 		$context = PromptBuilder::build_context( $message, $page_url, $messages, $product_id, $chat_target );
 
-		$messages[]    = array(
+		$user_message  = array(
 			'role'    => 'user',
 			'content' => $message,
 		);
+		$messages[]    = $user_message;
 		// Only role + (length-capped) text go to the provider - stored rows may
 		// predate the message length cap or carry handoff metadata.
 		$chat_messages = array();
@@ -178,40 +179,40 @@ final class ChatEngine {
 			throw $last_error;
 		}
 
-		$messages[] = array(
+		$assistant_message = array(
 			'role'    => 'assistant',
 			'content' => $full_response,
 		);
 
-		$now = current_time( 'mysql' );
-		if ( $conversation ) {
-			$wpdb->update(
-				$table,
-				array(
-					'messages'        => wp_json_encode( $messages ),
-					'page_url'        => $page_url,
-					'last_message_at' => $now,
-					'updated_at'      => $now,
-				),
-				array( 'id' => $conversation->id )
-			);
-		} else {
-			$wpdb->insert(
-				$table,
-				array(
-					'session_id'         => $session_id,
-					'visitor_ip'         => $this->get_visitor_ip(),
-					'visitor_user_agent' => substr( (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 0, 500 ),
-					'page_url'           => $page_url,
-					'messages'           => wp_json_encode( $messages ),
-					'status'             => 'active',
-					'gdpr_consent'       => 1,
-					'last_message_at'    => $now,
-					'created_at'         => $now,
-					'updated_at'         => $now,
-				)
-			);
-		}
+		// Save by APPENDING this turn's two messages to the stored row, never by writing back the copy read at the
+		// start: the answer may have streamed for a minute, and meanwhile the handoff code can have added system
+		// messages (operator requested / cancelled) or operator replies, which a full overwrite would erase.
+		// Handoff columns are deliberately not touched here.
+		$now             = current_time( 'mysql' );
+		$conversation_id = ConversationStore::ensure_row(
+			$session_id,
+			array(
+				'session_id'         => $session_id,
+				'visitor_ip'         => $this->get_visitor_ip(),
+				'visitor_user_agent' => substr( (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 0, 500 ),
+				'page_url'           => $page_url,
+				'messages'           => wp_json_encode( array() ),
+				'status'             => 'active',
+				'gdpr_consent'       => 1,
+				'last_message_at'    => $now,
+				'created_at'         => $now,
+				'updated_at'         => $now,
+			)
+		);
+		ConversationStore::append_messages(
+			$conversation_id,
+			array( $user_message, $assistant_message ),
+			array(
+				'page_url'        => $page_url,
+				'last_message_at' => $now,
+				'updated_at'      => $now,
+			)
+		);
 
 		$product_ids = array();
 		if ( preg_match_all( '/\[product:(\d+)\]/', $full_response, $matches ) ) {
@@ -303,24 +304,9 @@ final class ChatEngine {
 		$table = $wpdb->prefix . 'uxstudio_ai_assistant_conversations';
 		$now   = current_time( 'mysql' );
 
-		$exists = $wpdb->get_var(
-			$wpdb->prepare( "SELECT id FROM {$table} WHERE session_id = %s", $session_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
-
-		if ( $exists ) {
-			$wpdb->update(
-				$table,
-				array(
-					'gdpr_consent' => 1,
-					'updated_at'   => $now,
-				),
-				array( 'session_id' => $session_id )
-			);
-			return;
-		}
-
-		$wpdb->insert(
-			$table,
+		// ensure_row() avoids a second row when a chat save or handoff request inserts at the same moment.
+		$id = ConversationStore::ensure_row(
+			$session_id,
 			array(
 				'session_id'         => $session_id,
 				'visitor_ip'         => $this->get_visitor_ip(),
@@ -331,6 +317,15 @@ final class ChatEngine {
 				'created_at'         => $now,
 				'updated_at'         => $now,
 			)
+		);
+
+		$wpdb->update(
+			$table,
+			array(
+				'gdpr_consent' => 1,
+				'updated_at'   => $now,
+			),
+			array( 'id' => $id )
 		);
 	}
 
