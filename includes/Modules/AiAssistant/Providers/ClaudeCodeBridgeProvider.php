@@ -61,8 +61,29 @@ final class ClaudeCodeBridgeProvider implements AiProviderInterface {
 			'input_tokens'  => 0,
 			'output_tokens' => 0,
 		);
+		$system = (string) ( $options['system'] ?? '' );
 		// The bridge answers in one piece, so the whole text is a single chunk.
-		$on_chunk( $this->request( $messages, (string) ( $options['system'] ?? '' ) ) );
+		$text = $this->request( $messages, $system );
+		$on_chunk( $text );
+		$this->last_stream_usage = $this->estimate_usage( $messages, $system, $text );
+	}
+
+	/**
+	 * The bridge reports no token counts, so usage is estimated (~4 characters per
+	 * token). Without it the usage limits and statistics would never count these chats.
+	 *
+	 * @param array<int, array{role:string,content:string}> $messages Conversation sent.
+	 * @return array{input_tokens:int,output_tokens:int}
+	 */
+	private function estimate_usage( array $messages, string $system, string $answer ): array {
+		$input = mb_strlen( $system );
+		foreach ( $messages as $message ) {
+			$input += mb_strlen( (string) ( $message['content'] ?? '' ) );
+		}
+		return array(
+			'input_tokens'  => (int) ceil( $input / 4 ),
+			'output_tokens' => (int) ceil( mb_strlen( $answer ) / 4 ),
+		);
 	}
 
 	public function get_last_stream_usage(): array {
