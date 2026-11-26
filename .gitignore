@@ -3,6 +3,8 @@ node_modules/
 vendor/*
 # ...ale plugin-update-checker se VERSIONUJE i ships v release zipu (jinak auto-update nefunguje).
 !vendor/plugin-update-checker/
+# ...a sdílené AI jádro (sturmjan/ux1-ai-core) taky; kopíruje ho bin/sync-core.php, ručně NEupravovat.
+!vendor/ux1-ai-core/
 
 # Build (generuje se z src/ přes @wordpress/scripts)
 build/

@@ -56,6 +56,11 @@ jobs:
       # (CI can't run make-pot over the minified build/ JS: Xdebug + the JS parser
       # abort on deep recursion.)
 
+      # The shared AI core is vendored by bin/sync-core.php; a hand edit of the copy would be lost on the next sync
+      # and would make the plugin and UX1 Network app diverge, so the release refuses it.
+      - name: Guard - vendored ux1-ai-core untouched
+        run: php bin/sync-core.php --check
+
       - name: Assemble distribution zip
         run: |
           mkdir -p dist/ux-studio
@@ -79,6 +84,8 @@ jobs:
           test -f dist/ux-studio/ux-studio.php
           test -d dist/ux-studio/build
           test -d dist/ux-studio/vendor/plugin-update-checker
+          # The plugin requires the AI core on every request; a zip without it would fatal on client sites.
+          test -f dist/ux-studio/vendor/ux1-ai-core/autoload.php
           cd dist && zip -rq ux-studio.zip ux-studio
 
       # Detached Ed25519 signature over the zip's SHA-384 hash (base64), checked
