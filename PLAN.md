@@ -4864,7 +4864,7 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 
 ### 45.8 Rozhodnutí
 
-1. **Repo jádra: OTEVŘENÉ**, rozpracované možnosti v 45.12.
+1. **Repo jádra (rozhodnuto 2026-11-26): samostatné privátní repo `sturmjan/ux1-ai-core`** (varianta A z 45.12) s automatem, který po vydání verze jádra otevře aktualizační PR v pluginu i v CA. Lokálně je jádro do obou projektů připojené junction odkazem.
 2. **Účtování (rozhodnuto 2026-11-26): obojí, v CA i v pluginu.** Mezi providery přibude **„UX1 Network app“**: AI volání jde přes CA, tam se účtuje a kupují kredity. Vedle toho si každý dál může zvolit OpenAI, Anthropic, DeepSeek atd. s vlastním klíčem, jako dnes.
    - Upřesňuje 45.2 bod 7: CA dál nevyřizuje chat ani požadavky webu, jen na výslovnou volbu poskytne **AI bránu** (model se volá přes CA kvůli účtování). Logika chatu, RAG i data zůstávají v pluginu.
    - Plugin musí být spojen s účtem v CA (existující průvodce `connect_site` a klíč webu `sites.api_key`, podpis HMAC). Účtuje se uživateli CA, kterému web patří; bez spojení provider nejde zvolit.
