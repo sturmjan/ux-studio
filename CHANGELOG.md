@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed: AI Assistant chat widget - a slow operator poll that returned after the "no operator available" timeout (or after cancelling) brought the "Waiting for an operator" banner back for good and hid the operator button. Late poll answers are now ignored and a hung poll times out after 20 s.
+- Fixed: AI Assistant - saving a chat answer no longer overwrites the conversation: the "customer requested / cancelled an operator" notes and operator replies added while the answer was still streaming were lost. Messages are now appended to the stored conversation.
+- Fixed: AI Assistant - one chat session could end up with two conversation rows (chat save and operator request inserting at the same moment); the duplicate is now removed.
+- Fixed: AI Assistant handoff - an operator can no longer take over (or write to) a request the visitor already cancelled or another operator holds; the inbox shows "The customer has cancelled the operator request" instead of silently succeeding.
 - Changed: AI Assistant - the AI providers (Claude, OpenAI, DeepSeek, Claude Code Bridge) now come from the shared AI core ux1-ai-core (vendor/ux1-ai-core), which UX1 Network app uses too. Settings, models and saved keys are unchanged.
 - Fixed: AI Assistant - when OpenAI or DeepSeek refused a streamed chat answer (wrong key, quota, unknown model), the visitor got an empty answer and nothing was logged; the error is now logged and the chat falls back to another provider with a key.
 
