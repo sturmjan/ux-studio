@@ -4862,12 +4862,20 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 - Náklady na tokeny u cizích botů: bez kreditů nebo BYOK nepustit.
 - Widget na cizím webu: CSP klienta může blokovat spojení, v dokumentaci uvést potřebné `connect-src` a `script-src`.
 
-### 45.8 Otevřená rozhodnutí (čeká na majitele)
+### 45.8 Rozhodnutí
 
-1. Repo jádra: samostatné privátní `ux1-ai-core` (doporučeno) nebo složka v jednom z projektů?
-2. Peníze u botů v CA: vlastní klíč uživatele (BYOK), kredity z centrálního klíče, nebo obojí jako dnes u generování obsahu?
-3. Má MVP botů v CA obsahovat předání na operátora, nebo až F6?
-4. Veřejná adresa a značka vkládacího skriptu (`ux1.cz`, `app.ux1.cz`, vlastní doména).
+1. **Repo jádra: OTEVŘENÉ**, rozpracované možnosti v 45.12.
+2. **Účtování (rozhodnuto 2026-11-26): obojí, v CA i v pluginu.** Mezi providery přibude **„UX1 Network app“**: AI volání jde přes CA, tam se účtuje a kupují kredity. Vedle toho si každý dál může zvolit OpenAI, Anthropic, DeepSeek atd. s vlastním klíčem, jako dnes.
+   - Upřesňuje 45.2 bod 7: CA dál nevyřizuje chat ani požadavky webu, jen na výslovnou volbu poskytne **AI bránu** (model se volá přes CA kvůli účtování). Logika chatu, RAG i data zůstávají v pluginu.
+   - Plugin musí být spojen s účtem v CA (existující průvodce `connect_site` a klíč webu `sites.api_key`, podpis HMAC). Účtuje se uživateli CA, kterému web patří; bez spojení provider nejde zvolit.
+   - CA: nový endpoint AI brány (text, obrázky, embeddingy), rate limit, `AiKeyResolver` s kredity, `ai_usage_log` s `feature` podle původu (plugin web X, bot Y). Pro boty v CA je „UX1 Network app“ výchozí volba, BYOK volitelně.
+3. **Předání na operátora: ANO už v první verzi botů v CA** (rozhodnuto 2026-11-26). Operátor = vlastník bota (a jeho skupina) v adminu CA, upozornění e-mailem a v PWA (push už CA má).
+4. **Adresa: `app.ux1.cz/...`** (rozhodnuto 2026-11-26), například `https://app.ux1.cz/chat/v1/loader.js` a API `https://app.ux1.cz/chat/v1/...`. Zóna ux1.cz je na Cloudflare: loader cachovat na hraně s verzí v URL, API necachovat, ověřit, že CSP přepisovaná Hostingerem nevadí (týká se jen odpovědí CA, ne webu zákazníka).
+
+**Úkoly z rozhodnutí:**
+- [ ] Provider „UX1 Network app“ v jádru (klient AI brány) a endpoint AI brány v CA s účtováním kreditů.
+- [ ] Předání na operátora pro boty v CA přesunout z F6 do F4 (MVP).
+- [ ] Veřejné cesty `app.ux1.cz/chat/v1/` (loader, API), pravidla cache na Cloudflare.
 
 ### 45.9 Funkční srovnání AI v CA a v UX1 Studiu (inventura 2026-11-26)
 
@@ -4947,3 +4955,20 @@ Zůstává mimo jádro: indexery WooCommerce a příspěvků, MCP server pluginu
 - [ ] Generátor vkládacího kódu a návody (WordPress, Shoptet, Webnode, HTML), volitelné ověření domény.
 - [ ] Rozpočty a stropy na bota, upozornění, statistiky nákladů.
 - [ ] Schránka poptávek (v CA i v pluginu).
+
+### 45.12 Kde bude žít kód jádra (podklad pro rozhodnutí 1)
+
+Otázka není technická drobnost: určuje, jak rychle se úprava dostane do obou aplikací a jak snadno se kopie rozejdou.
+
+**Jak to vypadá v praxi u každé varianty (příklad: přidám generování obrázků do jádra).**
+
+| Varianta | Kde se upravuje | Jak se úprava dostane do pluginu a do CA | Plus | Minus |
+|---|---|---|---|---|
+| **A. Samostatné repo `ux1-ai-core`** | jen v repu jádra | tag verze jádra, automat (GitHub Action) otevře v repu pluginu i CA PR „aktualizovat jádro na 1.3.0“, schválit, vydat | jeden zdroj pravdy, jasné verze, oba produkty mohou mít jinou verzi jádra a nic se nerozbije nečekaně | o jedno repo víc, každá změna jádra = 3 PR (jádro, plugin, CA), i když automaticky |
+| **B. Jádro jako složka v repu pluginu** | ve složce pluginu `core/` | plugin ho má hned; CA si složku kopíruje skriptem z tagu pluginu | žádné nové repo, plugin se vyvíjí jako dnes | CA závisí na vydáních pluginu; nejasné, co je jádro a co plugin; v pluginu je svádí sahat na WordPress |
+| **C. Jádro jako složka v repu CA** | ve složce CA `lib/ai-core` | CA ho má hned; plugin si kopíruje z tagu CA | žádné nové repo | plugin závisí na CA; CA má rychlejší nasazování než podepsané vydání pluginu, rozjede se to |
+| **D. Jedno velké repo pro plugin + CA (monorepo)** | kdekoli v jednom repu | jeden PR mění jádro i oba produkty najednou | nejrychlejší vývoj, jedna změna = jeden PR | velké přestěhování obou projektů, jiné nasazení (podepsaný ZIP vs Hostinger), riziko rozbití stávajících postupů vydávání |
+
+**Lokální vývoj ve všech variantách stejně:** jádro bude v obou lokálních projektech připojené odkazem na jednu složku (junction, stejně jako dnes `ux-studio-csp`), takže úpravu v jádru hned vidím na lokálních pobytech i v lokální CA a otestuju obojí bez kopírování. Kopie s pevnou verzí vzniká až při vydání.
+
+**Doporučení: A**, s automatem na aktualizaci (bez něj by to bylo pomalé). Důvody: oba produkty se vydávají jinak a v jiném tempu (plugin podepsanými ZIPy pro weby klientů, CA nasazením na Hostinger), takže každý potřebuje vlastní pevnou verzi jádra; jádro bude čisté (v samostatném repu nejde omylem zavolat WordPress ani CA); a pozdější třetí hostitel (UX1 Studio pro Joomlu) se připojí stejně. D je lákavé pro rychlost, ale znamená přestavět vydávání obou projektů; dává smysl až později, pokud se A ukáže jako pomalé.
