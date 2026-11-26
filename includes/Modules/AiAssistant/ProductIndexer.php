@@ -71,20 +71,29 @@ final class ProductIndexer {
 		self::merge_rows( $ft_results, $results, $seen );
 
 		if ( ! empty( $stems ) ) {
-			$ascii_stems = self::to_ascii_stems( $stems );
-			if ( ! empty( $ascii_stems ) ) {
-				list( $where, $params ) = self::like_where( $ascii_stems, array( 'categories' ), 'AND' );
+			// Categories are stored as readable JSON; the ASCII stems are a fallback for rows still holding the
+			// old \uXXXX-escaped form (until the one-time re-index has run).
+			$stem_sets = array( $stems );
+			$ascii     = self::to_ascii_stems( $stems );
+			if ( ! empty( $ascii ) && $ascii !== $stems ) {
+				$stem_sets[] = $ascii;
+			}
+			foreach ( $stem_sets as $set ) {
+				list( $where, $params ) = self::like_where( $set, array( 'categories' ), 'AND' );
 				$params[] = $limit;
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where built from %s placeholders only.
 				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE ({$where}) AND stock_status = 'instock' ORDER BY price ASC LIMIT %d", ...$params ), ARRAY_A );
 
-				if ( empty( $rows ) && count( $ascii_stems ) > 1 ) {
-					list( $where, $params ) = self::like_where( $ascii_stems, array( 'categories' ), 'OR' );
+				if ( empty( $rows ) && count( $set ) > 1 ) {
+					list( $where, $params ) = self::like_where( $set, array( 'categories' ), 'OR' );
 					$params[] = $limit;
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE ({$where}) AND stock_status = 'instock' ORDER BY price ASC LIMIT %d", ...$params ), ARRAY_A );
 				}
-				self::merge_rows( $rows, $results, $seen );
+				if ( ! empty( $rows ) ) {
+					self::merge_rows( $rows, $results, $seen );
+					break;
+				}
 			}
 		}
 
@@ -105,6 +114,51 @@ final class ProductIndexer {
 		}
 
 		return array_slice( $results, 0, $limit );
+	}
+
+	/**
+	 * JSON for the categories/attributes columns: readable UTF-8 (never \uXXXX escapes) so LIKE/FULLTEXT search
+	 * and the text handed to the vectorizer match what shoppers type.
+	 *
+	 * @param mixed $data Value to encode.
+	 */
+	public static function encode_json( $data ): string {
+		return (string) wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * Plain readable text: tags stripped, HTML entities decoded, whitespace collapsed.
+	 */
+	public static function plain_text( string $text ): string {
+		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		return trim( (string) preg_replace( '/[\s\x{00A0}]+/u', ' ', $text ) );
+	}
+
+	/**
+	 * Readable text of a categories/attributes column value: a JSON list becomes "a, b", a JSON object
+	 * "key: value; key: value" (also for rows still holding \uXXXX escapes); anything else is returned as is.
+	 */
+	public static function readable_column( string $value ): string {
+		$value = trim( $value );
+		if ( '' === $value || ! in_array( $value[0], array( '[', '{' ), true ) ) {
+			return $value;
+		}
+		$data = json_decode( $value, true );
+		if ( ! is_array( $data ) ) {
+			return $value;
+		}
+		$scalars = static fn( $v ): string => is_scalar( $v ) ? (string) $v : implode( ', ', array_map( 'strval', array_filter( (array) $v, 'is_scalar' ) ) );
+		if ( array_is_list( $data ) ) {
+			return implode( ', ', array_filter( array_map( $scalars, $data ), static fn( string $v ): bool => '' !== $v ) );
+		}
+		$parts = array();
+		foreach ( $data as $key => $val ) {
+			$val = $scalars( $val );
+			if ( '' !== $val ) {
+				$parts[] = "{$key}: {$val}";
+			}
+		}
+		return implode( '; ', $parts );
 	}
 
 	/**
@@ -237,6 +291,8 @@ final class ProductIndexer {
 
 		if ( ! empty( $queue ) ) {
 			wp_schedule_single_event( time() + 5, KnowledgeBootstrap::CRON_PRODUCTS );
+		} else {
+			KnowledgeBootstrap::on_product_reindex_finished();
 		}
 	}
 
@@ -301,7 +357,7 @@ final class ProductIndexer {
 			$categories = wp_list_pluck( $cat_terms, 'name' );
 			foreach ( $cat_terms as $term ) {
 				if ( ! empty( $term->description ) ) {
-					$category_descriptions[] = wp_strip_all_tags( $term->description );
+					$category_descriptions[] = self::plain_text( $term->description );
 				}
 			}
 		}
@@ -319,13 +375,13 @@ final class ProductIndexer {
 				$label  = $attr->get_name();
 				$values = $attr->get_options();
 			}
-			$attrs[ sanitize_title( $label ) ] = implode( ', ', $values );
+			$attrs[ sanitize_title( $label ) ] = self::plain_text( implode( ', ', array_map( 'strval', (array) $values ) ) );
 		}
 
 		if ( $product instanceof \WC_Product_Variation ) {
 			foreach ( $product->get_variation_attributes() as $key => $val ) {
 				$label = wc_attribute_label( str_replace( 'attribute_', '', $key ) );
-				$attrs[ sanitize_title( $label ) ] = $val;
+				$attrs[ sanitize_title( $label ) ] = self::plain_text( (string) $val );
 			}
 		}
 
@@ -343,9 +399,9 @@ final class ProductIndexer {
 			$attrs[ $key ] = $val;
 		}
 
-		$description_text = wp_strip_all_tags( $product->get_description() . ' ' . $product->get_short_description() );
+		$description_text = self::plain_text( $product->get_description() . ' ' . $product->get_short_description() );
 		if ( ! empty( $acf_fields ) ) {
-			$description_text .= ' ' . implode( ' ', array_values( $acf_fields ) );
+			$description_text = self::plain_text( $description_text . ' ' . implode( ' ', array_values( $acf_fields ) ) );
 		}
 
 		$wpdb->replace(
@@ -357,8 +413,8 @@ final class ProductIndexer {
 				'name'             => $product->get_name(),
 				'sku'              => $product->get_sku(),
 				'price'            => $product->get_price(),
-				'categories'       => wp_json_encode( array_values( $categories ) ),
-				'attributes'       => wp_json_encode( $attrs ),
+				'categories'       => self::encode_json( array_values( array_map( array( self::class, 'plain_text' ), $categories ) ) ),
+				'attributes'       => self::encode_json( $attrs ),
 				'description_text' => $description_text,
 				'image_url'        => wp_get_attachment_url( $product->get_image_id() ) ?: '',
 				'permalink'        => (string) $product->get_permalink(),

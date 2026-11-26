@@ -10,6 +10,7 @@ import { ChatTab } from './ChatTab';
 import { KnowledgeHubTab } from './KnowledgeHubTab';
 import { RagTrainingTab } from './RagTrainingTab';
 import { HandoffTab } from './HandoffTab';
+import { InquiriesTab, useNewInquiryCount } from './InquiriesTab';
 import { ContentCreatorTab } from './ContentCreatorTab';
 import { BlogPilotTab } from './BlogPilotTab';
 import { InternalChatTab } from './InternalChatTab';
@@ -28,6 +29,7 @@ type TabId =
 	| 'knowledge'
 	| 'rag'
 	| 'handoff'
+	| 'inquiries'
 	| 'content'
 	| 'blog-pilot'
 	| 'internal-chat'
@@ -39,6 +41,7 @@ const TABS: { id: TabId; label: string }[] = [
 	{ id: 'usage', label: __( 'Usage', 'ux-studio' ) },
 	{ id: 'conversations', label: __( 'Conversations', 'ux-studio' ) },
 	{ id: 'handoff', label: __( 'Handoff', 'ux-studio' ) },
+	{ id: 'inquiries', label: __( 'Inquiries', 'ux-studio' ) },
 	{ id: 'knowledge', label: __( 'Knowledge Hub', 'ux-studio' ) },
 	{ id: 'rag', label: __( 'RAG Training', 'ux-studio' ) },
 	{ id: 'content', label: __( 'Content Creator', 'ux-studio' ) },
@@ -269,6 +272,7 @@ function initialTab(): TabId {
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< TabId >( initialTab );
+	const newInquiries = useNewInquiryCount();
 
 	return (
 		<>
@@ -289,6 +293,7 @@ export default function Page(): JSX.Element {
 				{ TABS.map( ( t ) => (
 					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
 						{ t.label }
+						{ 'inquiries' === t.id && newInquiries > 0 && <span className="uxs-badge is-danger">{ newInquiries }</span> }
 					</button>
 				) ) }
 			</TabsNav>
@@ -301,6 +306,7 @@ export default function Page(): JSX.Element {
 				</>
 			) }
 			{ tab === 'conversations' && <ChatTab /> }
+			{ tab === 'inquiries' && <InquiriesTab /> }
 			{ tab === 'handoff' && (
 				<>
 					<SettingsPanel title={ __( 'Notifications and contact e-mail', 'ux-studio' ) } filter={ isHandoffKey } />

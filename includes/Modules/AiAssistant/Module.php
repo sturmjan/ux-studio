@@ -41,6 +41,9 @@ final class Module extends BaseModule {
 		'claude_code' => self::SECRET_CLAUDE_CODE,
 	);
 
+	/** Module schema version, see migrate(). */
+	private const DB_VERSION = 2;
+
 	/** Daily purge of the usage/error log and internal chat history (see Core\Retention). */
 	private const RETENTION_HOOK = 'uxstudio_ai_assistant_retention';
 
@@ -58,7 +61,7 @@ final class Module extends BaseModule {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		DB::ensure_module_tables( 'ai-assistant', 1, array( $this, 'migrate' ) );
+		DB::ensure_module_tables( 'ai-assistant', self::DB_VERSION, array( $this, 'migrate' ) );
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
@@ -112,11 +115,19 @@ final class Module extends BaseModule {
 	 * Creates all 14 AI Assistant tables. Called via DB::ensure_module_tables()
 	 * so it only ever runs for sites where this module is enabled.
 	 *
-	 * @param int $from Previously installed module schema version (unused - v1 is the initial schema).
+	 * Schema versions: 1 = initial schema; 2 = conversations.session_id is UNIQUE (duplicate rows merged first,
+	 * see ConversationDedupe).
+	 *
+	 * @param int $from Previously installed module schema version (0 = fresh install).
 	 */
 	public function migrate( int $from ): void {
 		global $wpdb;
 		$charset = $wpdb->get_charset_collate();
+
+		if ( $from >= 1 && $from < 2 ) {
+			// The UNIQUE key below cannot be created while a session still has several rows.
+			ConversationDedupe::merge_all();
+		}
 
 		dbDelta(
 			"CREATE TABLE {$wpdb->prefix}uxstudio_ai_assistant_conversations (
@@ -140,7 +151,7 @@ final class Module extends BaseModule {
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				PRIMARY KEY  (id),
-				KEY session_id (session_id),
+				UNIQUE KEY session_id_unique (session_id),
 				KEY status (status),
 				KEY created_at (created_at),
 				KEY rating (rating),
@@ -410,6 +421,10 @@ final class Module extends BaseModule {
 				KEY post_id (post_id)
 			) {$charset};"
 		);
+
+		if ( $from >= 1 && $from < 2 ) {
+			ConversationDedupe::ensure_unique_key();
+		}
 	}
 
 	/**

@@ -58,6 +58,7 @@ final class UxsFakeWpdb {
 			return '%d' === $m[0] ? (string) (int) $v : "'" . str_replace( "'", "''", (string) $v ) . "'";
 		}, $sql );
 	}
+	public function suppress_errors( $b = true ) { return false; }
 	private function unq( string $v ) { return str_replace( "''", "'", trim( $v, "'" ) ); }
 
 	public function insert( $table, $data ) {

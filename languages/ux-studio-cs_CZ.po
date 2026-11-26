@@ -40686,3 +40686,74 @@ msgstr "Musí být na seznamu povolených složek v bridge."
 #: includes/Modules/AiAssistant/Module.php
 msgid "saved, no longer listed"
 msgstr "uloženo, už není v nabídce"
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:279
+msgid "The customer has cancelled the operator request, so there is nothing to take over. Refresh the list."
+msgstr "Zákazník zrušil žádost o operátora, není co převzít. Obnovte seznam."
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:282
+msgid "Another operator has already taken over this conversation."
+msgstr "Tuto konverzaci už převzal jiný operátor."
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:285
+msgid "This conversation has already been closed."
+msgstr "Tato konverzace je už uzavřená."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:120
+msgid "Invalid inquiry type."
+msgstr "Neplatný typ poptávky."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:129
+#: includes/Modules/AiAssistant/InquiryRestController.php:171
+#: includes/Modules/AiAssistant/InquiryRestController.php:190
+msgid "Invalid inquiry status."
+msgstr "Neplatný stav poptávky."
+
+#: includes/Modules/AiAssistant/InquiryRestController.php:179
+#: includes/Modules/AiAssistant/InquiryRestController.php:210
+msgid "Inquiry not found."
+msgstr "Poptávka nebyla nalezena."
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Handled"
+msgstr "Vyřízeno"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark handled (%d)"
+msgstr "Označit jako vyřízené (%d)"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark new (%d)"
+msgstr "Označit jako nové (%d)"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete the selected inquiries?"
+msgstr "Smazat vybrané poptávky?"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Select inquiry"
+msgstr "Vybrat poptávku"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark handled"
+msgstr "Označit jako vyřízené"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Mark new"
+msgstr "Označit jako nové"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete inquiry"
+msgstr "Smazat poptávku"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Delete this inquiry?"
+msgstr "Smazat tuto poptávku?"
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "No inquiries yet."
+msgstr "Zatím žádné poptávky."
+
+#: build/638.d4103b14ee7ba6d30a19.js:1
+msgid "Inquiries"
+msgstr "Poptávky"

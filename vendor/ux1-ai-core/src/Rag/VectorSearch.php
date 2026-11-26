@@ -71,7 +71,8 @@ final class VectorSearch {
 		try {
 			$query_vector = $this->embedding->embed( $query );
 			if ( ! empty( $query_vector ) ) {
-				$vector_results = $this->vector_search( $query_vector, $limit, $source_type );
+				// Twice the limit: identical chunks are dropped in merge_results(), which must still fill $limit.
+				$vector_results = $this->vector_search( $query_vector, $limit * 2, $source_type );
 			}
 		} catch ( \Throwable $e ) {
 			// Vector search unavailable this run: the fulltext part below still runs.
@@ -79,7 +80,7 @@ final class VectorSearch {
 		}
 
 		try {
-			$fulltext_results = $this->store->fulltext_search( $this->target, $query, $limit, $source_type );
+			$fulltext_results = $this->store->fulltext_search( $this->target, $query, $limit * 2, $source_type );
 		} catch ( \Throwable $e ) {
 			// Fulltext unavailable: keep whatever the vector search found.
 			unset( $e );
@@ -204,7 +205,20 @@ final class VectorSearch {
 		$results = array_values( $merged );
 		usort( $results, static fn( array $a, array $b ): int => $b['score'] <=> $a['score'] );
 
-		return array_slice( $results, 0, $limit );
+		// Different rows can carry the same text (e.g. products sharing a description). A repeated chunk adds
+		// nothing to the prompt and pushes other sources out, so only the best-scored copy is kept.
+		$seen   = array();
+		$unique = array();
+		foreach ( $results as $result ) {
+			$key = md5( (string) preg_replace( '/\s+/u', ' ', mb_strtolower( trim( (string) $result['chunk_text'] ) ) ) );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+			$unique[]     = $result;
+		}
+
+		return array_slice( $unique, 0, $limit );
 	}
 
 	/**
