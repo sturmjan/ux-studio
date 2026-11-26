@@ -471,6 +471,12 @@
         }).then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
+        }).then(function(body) {
+            // REST controller wraps successful payloads as { data, meta }.
+            if (body && typeof body === 'object' && !Array.isArray(body) && 'data' in body && 'meta' in body) {
+                return body.data;
+            }
+            return body;
         });
     }
 
@@ -889,7 +895,12 @@
             bodyEl.appendChild(price);
         } else if (priceNum) {
             var price = el('div', 'uxstudio-ais-product-card-price');
-            price.textContent = priceNum + (t('currency') ? ' ' + t('currency') : '');
+            // The index stores prices as plain decimals ("11890.00"); show them grouped ("11 890").
+            var priceValue = Number(priceNum);
+            var priceText = isFinite(priceValue)
+                ? priceValue.toLocaleString(document.documentElement.lang || undefined, { maximumFractionDigits: 2 })
+                : priceNum;
+            price.textContent = priceText + (t('currency') ? ' ' + t('currency') : '');
             bodyEl.appendChild(price);
         }
 
