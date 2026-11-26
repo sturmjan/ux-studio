@@ -13,6 +13,7 @@ use Ux1\AiCore\Rag\ChunkingEngine;
 use Ux1\AiCore\Rag\EmbeddingProvider;
 use Ux1\AiCore\Rag\FallbackEmbedding;
 use UxStudio\Modules\AiAssistant\KnowledgeBootstrap;
+use UxStudio\Modules\AiAssistant\ProductIndexer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,6 +35,9 @@ final class TrainingSourceManager {
 
 	/** Give up re-embedding after this many failed runs (the admin "index existing data" action still works). */
 	private const REVECTORIZE_MAX_FAILURES = 3;
+
+	/** Products re-vectorized per cron run by revectorize_products_batch(). */
+	private const PRODUCT_REVECTORIZE_BATCH = 10;
 
 	private ChunkingEngine $chunker;
 	private EmbeddingProvider $embedding;
@@ -331,24 +335,98 @@ final class TrainingSourceManager {
 			array_map( static fn( array $i ): array => array_merge( $i, array( 'id' => $i['product_id'] ) ), $items ),
 			'product',
 			$targets,
-			static function ( array $item ): string {
-				$parts = array( $item['name'] );
-				if ( ! empty( $item['description_text'] ) ) {
-					$parts[] = $item['description_text'];
-				}
-				if ( ! empty( $item['categories'] ) ) {
-					$parts[] = "Categories: {$item['categories']}";
-				}
-				if ( ! empty( $item['attributes'] ) ) {
-					$parts[] = "Attributes: {$item['attributes']}";
-				}
-				if ( ! empty( $item['price'] ) ) {
-					$parts[] = "Price: {$item['price']}";
-				}
-				return implode( "\n", $parts );
-			},
+			array( self::class, 'product_text' ),
 			static fn( array $item ): array => array( 'title' => $item['name'], 'url' => $item['permalink'] ?? '' )
 		);
+	}
+
+	/**
+	 * The text of one product index row that gets chunked and embedded: readable lists, never raw JSON.
+	 *
+	 * @param array<string, mixed> $item Row of the product index table.
+	 */
+	public static function product_text( array $item ): string {
+		$parts = array( (string) $item['name'] );
+		if ( ! empty( $item['description_text'] ) ) {
+			$parts[] = ProductIndexer::plain_text( (string) $item['description_text'] );
+		}
+		$categories = ProductIndexer::readable_column( (string) ( $item['categories'] ?? '' ) );
+		if ( '' !== $categories ) {
+			$parts[] = "Categories: {$categories}";
+		}
+		$attributes = ProductIndexer::readable_column( (string) ( $item['attributes'] ?? '' ) );
+		if ( '' !== $attributes ) {
+			$parts[] = "Attributes: {$attributes}";
+		}
+		if ( ! empty( $item['price'] ) ) {
+			$parts[] = "Price: {$item['price']}";
+		}
+		return implode( "\n", $parts );
+	}
+
+	/**
+	 * Queue every product that has vectors for a background re-vectorization (one-time data-quality upgrade), and
+	 * schedule the first batch. Products never vectorized are left alone.
+	 */
+	public function queue_product_revectorize(): int {
+		$ids = $this->store->source_ids( 'product' );
+		update_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE, $ids, false );
+		delete_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES );
+		if ( ! empty( $ids ) && ! wp_next_scheduled( KnowledgeBootstrap::CRON_PRODUCT_VECTORS ) ) {
+			wp_schedule_single_event( time() + 10, KnowledgeBootstrap::CRON_PRODUCT_VECTORS );
+		}
+		return count( $ids );
+	}
+
+	/**
+	 * WP-Cron callback: re-vectorize a batch of queued products from their (fresh) index rows, keeping each
+	 * product's chat targets. New vectors are inserted first and the old ones removed afterwards, so a failing
+	 * embedding API never leaves a product without vectors. Reschedules itself while ids remain; stops after
+	 * REVECTORIZE_MAX_FAILURES failed runs.
+	 */
+	public function revectorize_products_batch(): void {
+		global $wpdb;
+		$queue = array_map( 'intval', (array) get_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE, array() ) );
+		if ( empty( $queue ) ) {
+			return;
+		}
+
+		$table = "{$wpdb->prefix}uxstudio_ai_assistant_product_index";
+		$batch = array_slice( $queue, 0, self::PRODUCT_REVECTORIZE_BATCH );
+
+		try {
+			foreach ( $batch as $product_id ) {
+				$row = $wpdb->get_row( $wpdb->prepare( "SELECT product_id, name, description_text, categories, attributes, price, permalink FROM {$table} WHERE product_id = %d", $product_id ), ARRAY_A );
+				if ( ! is_array( $row ) ) {
+					// Gone from the index: the old vectors are stale too.
+					$this->store->delete_by_source( null, 'product', $product_id );
+				} else {
+					$targets = $this->store->targets_for_source( 'product', $product_id );
+					$max_id  = $this->store->max_id_for_source( 'product', $product_id );
+					if ( ! empty( $targets ) ) {
+						$this->process_text( self::product_text( $row ), 'product', $product_id, array( 'title' => $row['name'], 'url' => $row['permalink'] ?? '' ), $targets );
+						$this->store->delete_source_up_to( 'product', $product_id, $max_id );
+					}
+				}
+				array_shift( $queue );
+				update_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE, $queue, false );
+			}
+		} catch ( \Throwable $e ) {
+			$failures = (int) get_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES, 0 ) + 1;
+			update_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES, $failures, false );
+			error_log( 'UX1 Studio AI Assistant product re-vectorization failed (' . $failures . '/' . self::REVECTORIZE_MAX_FAILURES . '): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			if ( $failures < self::REVECTORIZE_MAX_FAILURES ) {
+				wp_schedule_single_event( time() + HOUR_IN_SECONDS, KnowledgeBootstrap::CRON_PRODUCT_VECTORS );
+			}
+			return;
+		}
+
+		if ( ! empty( $queue ) ) {
+			wp_schedule_single_event( time() + 10, KnowledgeBootstrap::CRON_PRODUCT_VECTORS );
+		} else {
+			delete_option( KnowledgeBootstrap::OPTION_PRODUCT_VECTOR_QUEUE );
+			delete_option( KnowledgeBootstrap::OPTION_REVECTORIZE_FAILURES );
+		}
 	}
 
 	/**
